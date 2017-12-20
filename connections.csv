@@ -1,0 +1,109 @@
+msg_cat, ss_cat, 1
+msg_rel, ss_rel, 1 
+msg_qua, ss_qua, 1
+msg_sen, ss_sen, 1
+msg_sal, ss_sen, 1
+msg_med, ss_med, 1
+msg_lan, ss_lan, 1
+msg_que, ss_que, 1
+ss_cat, srs_cat, 1
+ss_rel, srs_rel, 1
+ss_qua, srs_que, 1
+ss_sen, srs_sen, 1
+ss_sal, srs_sal, 1
+ss_med, srs_med, 1
+ss_lan, srs_lan, 1
+ss_que, srs_que, 1
+srs_cat, cat_per, 1
+srs_cat, cat_ent, 1
+srs_cat, cat_new, 1
+srs_cat, cat_edu, 1
+srs_cat, cat_con, 1
+srs_rel, attention_1, 1
+srs_qua, attention_1, 1
+srs_que, attention_2, -1
+srs_sen, arousel, 1
+srs_sal, attention_1, 1
+srs_med, srs_sal, 1
+srs_med, attention_1, 1
+srs_com, prep_comm, 1
+srs_com, attention_2, 1
+srs_que, prep_comm, 1
+pt_cons, nf_se, -1
+pt_cons, prep_like, -1 
+pt_cons, prep_comm, -1
+pt_cons, prep_share, -1
+pt_agre, nf_se, 1
+pt_extra, nf_se, 1
+pt_neur, nf_se, 1
+nf_ko, ff_ko, 1
+nf_ko, dissatisfaction 1
+nf_ent, ff_ent, 1
+nf_ent, dissatisfaction , 1
+nf_is, ff_is, 1
+nf_is, dissatisfaction , 1
+nf_si, ff_si, 1
+nf_si, dissatisfaction , 1
+nf_se, ff_se, 1
+nf_se, dissatisfaction , 1
+nf_se, prep_like, 1
+nf_se, prep_comm, 1
+nf_se, prep_share, 1
+cat_per, ff_ko, 1
+cat_ent, ff_ent, 1
+cat_new, ff_is, 1
+cat_edu, ff_is, 1
+cat_con, ff_si, 1
+ff_ko, dissatisfaction, -1
+ff_ko, mood, 1
+ff_ko, satisfcation, 1
+ff_ent, dissatisfaction, -1
+ff_ent, mood, 1
+ff_ent, satisfcation, 1
+ff_is, dissatisfaction, -1
+ff_is, mood, 1
+ff_is, satisfcation, 1
+ff_si, dissatisfaction, -1
+ff_si, mood, 1
+ff_si, satisfcation, 1
+ff_se, mood, 1
+ff_se, satisfcation, 1
+arousel, prep_share, 1
+attention_1, prep_like, 1
+attention_1, prep_comm, 1
+attention_1, prep_share, 1
+attention_1, attention_2, -1
+attention_2, prep_like, 1
+attention_2, prep_comm, 1
+attention_2, prep_share, 1
+attention_2, attention_1, -1
+mood, attention_1, 1
+mood, attention_2, -1
+satisfaction, prep_like, 1
+satisfaction, prep_comm, 1
+satisfaction, prep_share, 1
+satisfaction, mood, 1
+satisfaction, dissatisfaction, -1
+dissatisfaction, satisfaction, -1
+dissatisfaction, prep_like, -1
+dissatisfaction, prep_comm, -1
+dissatisfaction, prep_share, -1
+dissatisfaction, mood, -1
+dissatisfaction, arousel, -1
+dissatisfaction, attention, -1
+prep_like, like, 1
+prep_comm, comment, 1
+prep_share, share, 1
+like, ff_se, 1
+comment, ff_se, 1
+share, ff_se, 1
+
+
+
+
+
+
+
+
+
+
