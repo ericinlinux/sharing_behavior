@@ -203,20 +203,30 @@ def run_message(message=None, traits=None, states=None, previous_status_dict=Non
                     else:
                         print('Node with wrong value:', node)
                         exit()
-                # pp, cs and mood can be passed as continuous values for the next message
-                elif node == 'pp_cons':
+                # states are the personality traits of the agent
+                elif node == 'nf_ko':
                     graph.node[node]['status'] = {0:states[0]}
-                elif node == 'pp_lib':
+                elif node == 'nf_ent':
                     graph.node[node]['status'] = {0:states[1]}
-                elif node == 'cs_cons':
+                elif node == 'nf_is':
                     graph.node[node]['status'] = {0:states[2]}
-                elif node == 'cs_lib':
+                elif node == 'nf_si':
                     graph.node[node]['status'] = {0:states[3]}
-                elif node == 'mood':
-                    graph.node[node]['status'] = {0:states[4]}
+                elif node == 'nf_si':
+                    graph.node[node]['status'] = {0:states[4]}                
+                elif node == 'nf_se':
+                    graph.node[node]['status'] = {0:states[5]}
+                elif node == 'pt_cons':
+                    graph.node[node]['status'] = {0:states[6]}
+                elif node == 'pt_agre':
+                    graph.node[node]['status'] = {0:states[7]}
+                elif node == 'pt_extra':
+                    graph.node[node]['status'] = {0:states[8]}
+                elif node == 'pt_neur':
+                    graph.node[node]['status'] = {0:states[9]}
                 # The other states are set to previous values at the beginning
                 else:
-                    if previous_status_dict == None:
+                    if previous_status_dict is None:
                         graph.node[node]['status'] = {0:0}
                     else:
                         graph.node[node]['status'] = {0:previous_status_dict[node]}
