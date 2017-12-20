@@ -6,15 +6,15 @@ msg_sal, input
 msg_med, input
 msg_com, input
 msg_que, input
-nf_ko, input
-nf_ent, input
-nf_is, input
-nf_si, input
-nf_se, input
-pt_cons, input
-pt_agre, input
-pt_extra, input
-pt_neur, input
+nf_ko, attribute
+nf_ent, attribute
+nf_is, attribute
+nf_si, attribute
+nf_se, attribute
+pt_cons, attribute
+pt_agre, attribute
+pt_extra, attribute
+pt_neur, attribute
 ss_cat, id
 ss_rel, id
 ss_qua, id
@@ -53,5 +53,3 @@ prep_share, alogistic
 like, id
 comment, id
 share, id
-
-

@@ -37,15 +37,15 @@ pt_agre, nf_se, 1
 pt_extra, nf_se, 1
 pt_neur, nf_se, 1
 nf_ko, ff_ko, 1
-nf_ko, dissatisfaction 1
+nf_ko, dissatisfaction, 1
 nf_ent, ff_ent, 1
 nf_ent, dissatisfaction , 1
 nf_is, ff_is, 1
 nf_is, dissatisfaction , 1
 nf_si, ff_si, 1
-nf_si, dissatisfaction , 1
+nf_si, dissatisfaction, 1
 nf_se, ff_se, 1
-nf_se, dissatisfaction , 1
+nf_se, dissatisfaction, 1
 nf_se, prep_like, 1
 nf_se, prep_comm, 1
 nf_se, prep_share, 1
@@ -97,13 +97,3 @@ prep_share, share, 1
 like, ff_se, 1
 comment, ff_se, 1
 share, ff_se, 1
-
-
-
-
-
-
-
-
-
-
