@@ -1,4 +1,8 @@
-msg_cat, input
+msg_cat_per, input
+msg_cat_ent, input
+msg_cat_new, input
+msg_cat_edu, input
+msg_cat_con, input
 msg_rel, input
 msg_qua, input
 msg_sen, input
