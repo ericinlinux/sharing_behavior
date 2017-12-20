@@ -37,13 +37,9 @@ srs_med, attention_1, 1
 srs_com, prep_comm, 1
 srs_com, attention_2, 1
 srs_que, prep_comm, 1
-pt_cons, nf_se, -1
 pt_cons, prep_like, -1 
 pt_cons, prep_comm, -1
 pt_cons, prep_share, -1
-pt_agre, nf_se, 1
-pt_extra, nf_se, 1
-pt_neur, nf_se, 1
 nf_ko, ff_ko, 1
 nf_ko, dissatisfaction, 1
 nf_ent, ff_ent, 1
