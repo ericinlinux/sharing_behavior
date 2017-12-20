@@ -62,6 +62,8 @@ def generate_graph(weightList=None, traits=None):
                 graph.add_node(node, attr_dict={'pos': 'output', 'func': func, 'status':{}} )
             elif func in ['id', 'alogistic', 'alogistic+', 'diff', 'special']:
                 graph.add_node(node, attr_dict={'pos': 'inner', 'func': func, 'status':{}} )
+            elif func == 'attribute':
+                graph.add_node(node, attr_dict={'pos': 'attribute', 'func': func, 'status':{}} )
             else:
                 graph.add_node(node, attr_dict={'pos': 'input', 'func': func, 'status':{}} )
         else:
@@ -71,7 +73,7 @@ def generate_graph(weightList=None, traits=None):
     outWeightList = []
     
     # Insert edges
-    if weightList == None:
+    if weightList is None:
         for line in edges_f:
             source, target, w = line.replace(" ", "").strip().split(',')
             # [openness, adaptability, conscientiousness, system_justification]
@@ -162,14 +164,16 @@ def run_message(message=None, traits=None, states=None, previous_status_dict=Non
     graph, outWeightList = generate_graph(weightList, traits)
     #print(graph.nodes(data=True))
     rng = np.arange(0.0, timesteps*delta_t, delta_t)
+    print(rng)
     pos = None
     for t in rng:
         # Initialize the nodes
         if t == 0:
             for node in graph.nodes():
                 try:
-                    func = graph.node[node]['attr_dict']['func']
-                    pos = graph.node[node]['attr_dict']['pos']
+                    func = graph.nodes[node]['attr_dict']['func']
+                    pos = graph.nodes[node]['attr_dict']['pos']
+                    #print(node, func, pos)
                 except:
                     print('node without func or pos %s at time %i' % (node, t))
                 
@@ -177,63 +181,63 @@ def run_message(message=None, traits=None, states=None, previous_status_dict=Non
                 # message[0] is the time of the message
                 if pos == 'input':
                     if node == 'msg_cat_per':
-                        graph.node[node]['status'] = {0:message[1]}
+                        graph.nodes[node]['status'] = {0:message[1]}
                     elif node == 'msg_cat_ent':
-                        graph.node[node]['status'] = {0:message[2]}
+                        graph.nodes[node]['status'] = {0:message[2]}
                     elif node == 'msg_cat_new':
-                        graph.node[node]['status'] = {0:message[3]}
+                        graph.nodes[node]['status'] = {0:message[3]}
                     elif node == 'msg_cat_edu':
-                        graph.node[node]['status'] = {0:message[4]}
+                        graph.nodes[node]['status'] = {0:message[4]}
                     elif node == 'msg_cat_con':
-                        graph.node[node]['status'] = {0:message[5]}
+                        graph.nodes[node]['status'] = {0:message[5]}
                     elif node == 'msg_rel':
-                        graph.node[node]['status'] = {0:message[6]}
+                        graph.nodes[node]['status'] = {0:message[6]}
                     elif node == 'msg_qua':
-                        graph.node[node]['status'] = {0:message[7]}
+                        graph.nodes[node]['status'] = {0:message[7]}
                     elif node == 'msg_sen':
-                        graph.node[node]['status'] = {0:message[8]}
+                        graph.nodes[node]['status'] = {0:message[8]}
                     elif node == 'msg_sal':
-                        graph.node[node]['status'] = {0:message[9]}
+                        graph.nodes[node]['status'] = {0:message[9]}
                     elif node == 'msg_med':
-                        graph.node[node]['status'] = {0:message[10]}
+                        graph.nodes[node]['status'] = {0:message[10]}
                     elif node == 'msg_com':
-                        graph.node[node]['status'] = {0:message[11]}
+                        graph.nodes[node]['status'] = {0:message[11]}
                     elif node == 'msg_que':
-                        graph.node[node]['status'] = {0:message[12]}
+                        graph.nodes[node]['status'] = {0:message[12]}
                     else:
                         print('Node with wrong value:', node)
                         exit()
                 # states are the personality traits of the agent
                 elif node == 'nf_ko':
-                    graph.node[node]['status'] = {0:states[0]}
+                    graph.nodes[node]['status'] = {0:states[0]}
                 elif node == 'nf_ent':
-                    graph.node[node]['status'] = {0:states[1]}
+                    graph.nodes[node]['status'] = {0:states[1]}
                 elif node == 'nf_is':
-                    graph.node[node]['status'] = {0:states[2]}
+                    graph.nodes[node]['status'] = {0:states[2]}
                 elif node == 'nf_si':
-                    graph.node[node]['status'] = {0:states[3]}
+                    graph.nodes[node]['status'] = {0:states[3]}
                 elif node == 'nf_si':
-                    graph.node[node]['status'] = {0:states[4]}                
+                    graph.nodes[node]['status'] = {0:states[4]}                
                 elif node == 'nf_se':
-                    graph.node[node]['status'] = {0:states[5]}
+                    graph.nodes[node]['status'] = {0:states[5]}
                 elif node == 'pt_cons':
-                    graph.node[node]['status'] = {0:states[6]}
+                    graph.nodes[node]['status'] = {0:states[6]}
                 elif node == 'pt_agre':
-                    graph.node[node]['status'] = {0:states[7]}
+                    graph.nodes[node]['status'] = {0:states[7]}
                 elif node == 'pt_extra':
-                    graph.node[node]['status'] = {0:states[8]}
+                    graph.nodes[node]['status'] = {0:states[8]}
                 elif node == 'pt_neur':
-                    graph.node[node]['status'] = {0:states[9]}
+                    graph.nodes[node]['status'] = {0:states[9]}
                 # The other states are set to previous values at the beginning
                 else:
                     if previous_status_dict is None:
-                        graph.node[node]['status'] = {0:0}
+                        graph.nodes[node]['status'] = {0:0}
                     else:
-                        graph.node[node]['status'] = {0:previous_status_dict[node]}
+                        graph.nodes[node]['status'] = {0:previous_status_dict[node]}
             continue
 
 
-        for node in graph.nodes():
+        for node in graph.nodes:
             '''
                 For each node (not 0 nodes...):
                     get the neighbors
@@ -241,24 +245,29 @@ def run_message(message=None, traits=None, states=None, previous_status_dict=Non
                     get the weights for the edges
                     calculate the new status value for the node in time t
             '''
-            func = graph.node[node]['func']
-            pos = graph.node[node]['pos']
+            func = graph.nodes[node]['attr_dict']['func']
+            pos = graph.nodes[node]['attr_dict']['pos']
 
             # Get previous state
-            previous_state = graph.node[node]['status'][t - delta_t]
-            
-            if pos != 'input':
+            try:
+                previous_state = graph.nodes[node]['status'][t - delta_t]
+            except:
+                print(graph.nodes[node]['status'], t, delta_t, node)
+                print(graph.nodes[node]['attr_dict']['pos'])
+
+            if pos != 'input' and pos != 'attribute':
                 # If it is identity, the operation is based on the only neighbor.
                 if func == 'id':
                     try:
-                        weight = graph.edge[graph.predecessors(node)[0]][node]['weight']
-                        state_pred = graph.node[graph.predecessors(node)[0]]['status'][t - delta_t]
+                        weight = graph.edges[list(graph.predecessors(node))[0], node]['weight']
+                        state_pred = graph.nodes[list(graph.predecessors(node))[0]]['status'][t - delta_t]
                         if weight < 0:
-                            graph.node[node]['status'][t] = previous_state + speed_factor * ((1-abs(weight) * state_pred) - previous_state) * delta_t
+                            graph.nodes[node]['status'][t] = previous_state + speed_factor * ((1-abs(weight) * state_pred) - previous_state) * delta_t
                         else:
-                            graph.node[node]['status'][t] = previous_state + speed_factor * (weight * state_pred - previous_state) * delta_t
+                            graph.nodes[node]['status'][t] = previous_state + speed_factor * (weight * state_pred - previous_state) * delta_t
                     except:
-                        print('<time ', t, '> node:', graph.predecessors(node)[0], '-> ', node, '(id)')
+                        #print('<time ', t, '> node:', list(graph.predecessors(node))[0], '-> ', node, '(id)')
+                        print(node, list(graph.predecessors(node)))
                         print(t - delta_t)
                     
 
@@ -266,8 +275,8 @@ def run_message(message=None, traits=None, states=None, previous_status_dict=Non
                     # This vector is the input for the alogistic function. It has the values to calculate it
                     values_v = []
                     for neig in graph.predecessors(node):
-                        neig_w = graph.edge[neig][node]['weight']
-                        neig_s = graph.node[neig]['status'][t - delta_t]
+                        neig_w = graph.edges[neig, node]['weight']
+                        neig_s = graph.nodes[neig]['status'][t - delta_t]
                         
                         values_v.append(neig_w*neig_s)
                     
@@ -288,160 +297,31 @@ def run_message(message=None, traits=None, states=None, previous_status_dict=Non
                     else:
                         sf = speed_factor
 
-                    graph.node[node]['status'][t] = previous_state + sf * (c - previous_state) * delta_t
+                    graph.nodes[node]['status'][t] = previous_state + sf * (c - previous_state) * delta_t
 
-
-                    '''
-                    cons_eval, alogistic+
-                    lib_eval, alogistic+
-                    pp_cons, alogistic+
-                    pp_lib, alogistic+
-                    '''
-                elif func == 'alogistic+':
-                    if node == 'cons_eval':
-                        mood_w = graph.edge['mood'][node]['weight']
-                        mood_s = graph.node['mood']['status'][t - delta_t]
-                        mood_t = mood_w*mood_s
-
-                        cons_acc_w = graph.edge['cons_acc'][node]['weight']
-                        cons_acc_s = graph.node['cons_acc']['status'][t - delta_t]
-                        cons_acc_t = cons_acc_w*cons_acc_s 
-
-                        cons_content_w = graph.edge['cons_content'][node]['weight']
-                        cons_content_s = graph.node['cons_content']['status'][t - delta_t]
-                        cons_content_t = cons_content_w*cons_content_s 
-
-                        tau = alogistic_parameters[node][0]
-                        sigma = alogistic_parameters[node][1]
-                        try:
-                            c_values = [mood_t*(cons_content_t), (1-mood_t)*(cons_acc_t)]
-                            c = alogistic(sum(c_values), tau, sigma)
-                        except OverflowError as err:
-                            print(err)
-                        graph.node[node]['status'][t] = previous_state + speed_factor * (c - previous_state) * delta_t                      
-
-                    elif node == 'lib_eval':
-                        mood_w = graph.edge['mood'][node]['weight']
-                        mood_s = graph.node['mood']['status'][t - delta_t]
-                        mood_t = mood_w*mood_s
-
-                        lib_acc_w = graph.edge['lib_acc'][node]['weight']
-                        lib_acc_s = graph.node['lib_acc']['status'][t - delta_t]
-                        lib_acc_t = lib_acc_w*lib_acc_s 
-
-                        lib_content_w = graph.edge['lib_content'][node]['weight']
-                        lib_content_s = graph.node['lib_content']['status'][t - delta_t]
-                        lib_content_t = lib_content_w*lib_content_s 
-
-                        tau = alogistic_parameters[node][0]
-                        sigma = alogistic_parameters[node][1]
-                        try:
-                            c_values = [mood_t*(lib_content_t), (1-mood_t)*(lib_acc_t)]
-                            c = alogistic(sum(c_values), tau, sigma)
-                        except OverflowError as err:
-                            print(err)
-                        graph.node[node]['status'][t] = previous_state + speed_factor * (c - previous_state) * delta_t  
-                    
-                    else:
-                        print('func todefine incorrect.\n', node, func, t)
-                        exit()
-                    '''
-                    fs_cons, diff
-                    fs_lib, diff
-                    '''
-                elif func == 'diff':
-                    if node == 'fc_cons':
-                        cons_eval_w = graph.edge['cons_eval'][node]['weight']
-                        cons_eval_s = graph.node['cons_eval']['status'][t - delta_t]
-                        cons_eval_t = cons_eval_w*cons_eval_s
-
-                        pp_cons_w = graph.edge['pp_cons'][node]['weight']
-                        pp_cons_s = graph.node['pp_cons']['status'][t - delta_t]
-                        pp_cons_t = pp_cons_w*pp_cons_s
-
-                        cs_cons_w = graph.edge['cs_cons'][node]['weight']
-                        cs_cons_s = graph.node['cs_cons']['status'][t - delta_t]
-                        cs_cons_t = cs_cons_w*cs_cons_s
-
-                        # c_values = [abs(cons_eval_t - pp_cons_t), abs(cs_cons_t - pp_cons_t), abs(cs_cons_t - cons_eval_t)]
-                        c_values = [abs(cons_eval_t - pp_cons_t), abs(cs_cons_t - cons_eval_t)]
-                        # c_values = [abs(cons_eval_t - pp_cons_t), abs(cs_cons_t - pp_cons_t)]
-                        tau = alogistic_parameters[node][0]
-                        sigma = alogistic_parameters[node][1]
-
-                        try:
-                            c = alogistic(sum(c_values), tau, sigma)
-                            #c = sum(c_values)/(cons_eval_w+pp_cons_w+cs_cons_w)
-                        except OverflowError as err:
-                            print(err)
-
-                        graph.node[node]['status'][t] = previous_state + speed_factor * (c - previous_state) * delta_t  
-
-                    elif node == 'fc_lib':
-                        lib_eval_w = graph.edge['lib_eval'][node]['weight']
-                        lib_eval_s = graph.node['lib_eval']['status'][t - delta_t]
-                        lib_eval_t = lib_eval_w*lib_eval_s
-
-                        pp_lib_w = graph.edge['pp_lib'][node]['weight']
-                        pp_lib_s = graph.node['pp_lib']['status'][t - delta_t]
-                        pp_lib_t = pp_lib_w*pp_lib_s
-
-                        cs_lib_w = graph.edge['cs_lib'][node]['weight']
-                        cs_lib_s = graph.node['cs_lib']['status'][t - delta_t]
-                        cs_lib_t = cs_lib_w*cs_lib_s
-
-                        # c_values = [abs(lib_eval_t - pp_lib_t), abs(cs_lib_t - pp_lib_t), abs(cs_lib_t - lib_eval_t)]
-                        c_values = [abs(lib_eval_t - pp_lib_t), abs(cs_lib_t - lib_eval_t)]
-                        # c_values = [abs(lib_eval_t - pp_lib_t), abs(cs_lib_t - pp_lib_t)]
-                        tau = alogistic_parameters[node][0]
-                        sigma = alogistic_parameters[node][1]
-
-                        try:
-                            c = alogistic(sum(c_values), tau, sigma)
-                            # c = sum(c_values)/(lib_eval_w+pp_lib_w+cs_lib_w)
-                        except OverflowError as err:
-                            print(err)
-                        graph.node[node]['status'][t] = previous_state + speed_factor * (c - previous_state) * delta_t  
-                        
-                    else:
-                        print('Node ', node, ' out of its right placement.')
-                        exit()
                 '''
-                elif func == 'special':
-                    if node == 'fs_change':
-                        fc_lib_w = graph.edge['fc_lib'][node]['weight']
-                        fc_lib_s = graph.node['fc_lib']['status'][t - delta_t]
-                        fc_lib_t = fc_lib_w*fc_lib_s
-
-                        fc_cons_w = graph.edge['fc_cons'][node]['weight']
-                        fc_cons_s = graph.node['fc_cons']['status'][t - delta_t]
-                        fc_cons_t = fc_cons_w*fc_cons_s
-
-                        c = (fc_lib_t + fc_cons_t )/2
-                        graph.node[node]['status'][t] = previous_state + speed_factor * (c - previous_state) * delta_t  
-
-                    else:
-                        print 'so wrong!'
-                # None of the others
                 else:
                     print 'It shouldn\'t be here!'
                 '''
             # In case of inputs, copy the previous state again
             else:
-                graph.node[node]['status'][t] = graph.node[node]['status'][t - delta_t]
+                graph.nodes[node]['status'][t] = graph.nodes[node]['status'][t - delta_t]
 
+    # Previous status dictionary to keep track of what was done
     psd = {}
     for node in graph.nodes():
-        psd[node] = graph.node[node]['status'][t]
+        psd[node] = graph.nodes[node]['status'][t]
 
-    set_output = {"pp_cons": graph.node['pp_cons']['status'][t],
-                "pp_lib": graph.node['pp_lib']['status'][t],
-                "cs_cons": graph.node['cs_cons']['status'][t],
-                "cs_lib": graph.node['cs_lib']['status'][t],
-                "mood": graph.node['mood']['status'][t],
-                "fs_change": graph.node['fs_change']['status'][t],
-                "fc_cons": graph.node['fc_cons']['status'][t],
-                "fc_lib": graph.node['fc_lib']['status'][t],
+    # 
+    set_output = {"nf_ko": graph.nodes['nf_ko']['status'][t],
+                "nf_ent": graph.nodes['nf_ent']['status'][t],
+                "nf_is": graph.nodes['nf_is']['status'][t],
+                "nf_si": graph.nodes['nf_si']['status'][t],
+                "nf_se": graph.nodes['nf_se']['status'][t],
+                "pt_cons": graph.nodes['pt_cons']['status'][t],
+                "pt_agre": graph.nodes['pt_agre']['status'][t],
+                "pt_extra": graph.nodes['pt_extra']['status'][t],
+                "pt_neur": graph.nodes['pt_neur']['status'][t],
                 }
     return graph, outWeightList, set_output, alogistic_parameters, psd
 
@@ -465,7 +345,7 @@ def run_message_sequence(message_seq=None, traits=None, states=None, alogistic_p
     # a1States = [0.1, 0.8, 0.2, 0.7, 0.5]
 
     for message in message_seq:
-        if psd == None:
+        if psd is None:
             g, w, s, parameters, psd = run_message(message=message, weightList=weightList, traits=traits, states=states, 
                 alogistic_parameters=alogistic_parameters, speed_factor=speed_factor, delta_t = delta_t, timesteps = timesteps)
         else:
