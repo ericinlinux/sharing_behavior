@@ -195,6 +195,7 @@ def run_message(message=None, traits=None, previous_status_dict=None, alogistic_
                     get the weights for the edges
                     calculate the new status value for the node in time t
             '''
+
             func = graph.nodes[node]['attr_dict']['func']
             pos = graph.nodes[node]['attr_dict']['pos']
 
