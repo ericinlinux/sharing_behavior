@@ -1,40 +1,15 @@
 """
-Generate graph and run model for the political change model
+Generate graph and run model for the sharing behavior on web media
 Creator: Eric Araujo
-Date: 2017-02-27
+Date: 2017-12-20
 """
-'''
-Parameters found using manual test on 14th March
-parameters={
- "cons_content": [0.7, 2],
- "cons_eval": [0.7, 4],
- "cs_cons": [1.2, 2],
- "cs_lib": [1.2, 2],
- "fc_cons": [0.9, 2],
- "fc_lib": [0.9, 2],
- "lib_content": [0.7, 2],
- "lib_eval": [0.7, 4],
- "mood": [0.6, 2],
- "pp_cons": [1.4, 2],
- "pp_lib": [1.2, 2],
- "fs_h" : [0.9,5],
- "fs_s" : [0.9,2],
- "cs_speed": 0.00001,
- "mood_speed": 0.01,
- "fs_change" : [1.2, 4],
- "pp_speed": 0.001
-}
-'''
 
-
-import sys
 import numpy as np
 import networkx as nx
 import pandas as pd
 import math
 #import matplotlib.pyplot as plt
 import json
-from random import random
 
 
 """
@@ -133,7 +108,6 @@ def alogistic(c, tau, sigma):
 """
 Inputs:     message sentiment, message political position, message quality - [msg_s, msg_p,msg_q]
             time of exposure - timesteps
-            traits are [openness, adaptability, conscientiousness, system_justification] 
             alogistic_parameters is a dictionary with the tau and sigma for each node that uses alogistic 
             states should be a vector [pp_cons, pp_lib, cs_cons, cs_lib, mood] for the agent to start with
 Outputs:    graph with the values for the states
@@ -164,7 +138,6 @@ def run_message(message=None, traits=None, states=None, previous_status_dict=Non
     graph, outWeightList = generate_graph(weightList, traits)
     #print(graph.nodes(data=True))
     rng = np.arange(0.0, timesteps*delta_t, delta_t)
-    print(rng)
     pos = None
     for t in rng:
         # Initialize the nodes
@@ -288,11 +261,7 @@ def run_message(message=None, traits=None, states=None, previous_status_dict=Non
                         print(err)
                     
                     # Changes for the speed factors
-                    if node == 'pp_cons' or node == 'pp_lib':
-                        sf = alogistic_parameters['pp_speed']
-                    elif node == 'cs_cons' or node == 'cs_lib':
-                        sf = alogistic_parameters['cs_speed']
-                    elif node == 'mood':
+                    if node == 'mood':
                         sf = alogistic_parameters['mood_speed']
                     else:
                         sf = speed_factor
