@@ -8,86 +8,63 @@ import numpy as np
 import networkx as nx
 import pandas as pd
 import math
-#import matplotlib.pyplot as plt
 import json
 
 
-"""
-Inputs: weightList with ((source,target),weight) values
-        oc = openness/conscientiousness trait of the agent
-        ja = justification system/adaptability trait of the agent
-        traits is a vector with the information of [openness, adaptability, conscientiousness, system_justification] 
-"""
-def generate_graph(weightList=None, traits=None):
-    # Files with edges and nodes
+def generate_graph(weightList=None):
+    """
+    Inputs: weightList with ((source,target),weight) values
+    """
     try:
         edges_f = open('connections.csv')
         nodes_f = open('states.csv')
     except:
         print("Files for edges and nodes not included in the code folder!")
         exit(0)
-
+    # Initiate graph as digraph (oriented graph)
     graph = nx.DiGraph()
     # Insert nodes
     for line in nodes_f:
+        # Read each line and split to get nodes' name and function
         node, func = line.replace(" ", "").strip().split(',')
-        # Node not included
+        # Avoiding include repeated nodes
         if node not in graph.nodes():
-            if node == 'fs_change':
-                graph.add_node(node, attr_dict={'pos': 'output', 'func': func, 'status':{}} )
-            elif func in ['id', 'alogistic', 'alogistic+', 'diff', 'special']:
-                graph.add_node(node, attr_dict={'pos': 'inner', 'func': func, 'status':{}} )
-            elif func == 'attribute':
-                graph.add_node(node, attr_dict={'pos': 'attribute', 'func': func, 'status':{}} )
+            # If node is output
+            if node in ['like', 'share', 'comment']:
+                graph.add_node(node, attr_dict={'pos': 'output', 'func': func, 'status': {}})
+            # If node is internal state
+            elif func in ['id', 'alogistic']:
+                graph.add_node(node, attr_dict={'pos': 'inner', 'func': func, 'status': {}})
+            # If node is a trait of the participant
+            elif func == 'trait':
+                graph.add_node(node, attr_dict={'pos': 'trait', 'func': func, 'status': {}})
+            # If node is an input
+            elif func == 'input':
+                graph.add_node(node, attr_dict={'pos': 'input', 'func': func, 'status': {}})
             else:
-                graph.add_node(node, attr_dict={'pos': 'input', 'func': func, 'status':{}} )
+                print('Node %s does not match the requirements to create graph.', node)
+                exit(0)
         else:
-            print('<CONFLICT> Node already included in the list!')
-            exit()
+            print('<CONFLICT> Node %s already included in the list!', node)
+            exit(0)
 
     outWeightList = []
-    
+
     # Insert edges
     if weightList is None:
         for line in edges_f:
             source, target, w = line.replace(" ", "").strip().split(',')
-            # [openness, adaptability, conscientiousness, system_justification]
-            if w == 'openness':
-                w = traits[0]
-            elif w == 'adaptability':
-                w = traits[1]
-            elif w == 'conscientiousness':
-                w = traits[2]
-            elif w == 'system_justification':
-                w = traits[3]
-            # In case w is negative, the value will follow
-            else:
-                w = float(w) #*random()
+            #w = float(w) #*random()
             graph.add_edge(source, target, weight=float(w))
             outWeightList.append(((source, target), float(w)))
     else:
         for line in weightList:
             ((source, target), w) = line
-
-            '''pp_cons, cs_cons, conscientiousness
-                cs_cons, pp_cons, system_justification
-                pp_lib, cs_lib, openness
-                cs_lib, pp_lib, adaptability
-            '''
-            if source == 'pp_cons' and target == 'cs_cons':
-                w = traits[0]
-            elif source == 'cs_cons' and target == 'pp_cons':
-                w = traits[1]
-            elif source == 'pp_lib' and target == 'cs_lib':
-                w = traits[2]
-            elif source == 'cs_lib' and target == 'pp_lib':
-                w = traits[3]
             graph.add_edge(source, target, weight=float(w))
             outWeightList.append(((source, target), float(w)))
 
-    #save_graph(graph)  
-
     return graph, outWeightList
+
 
 def save_graph(graph):
     nx.draw_spring(graph, with_labels = True)
@@ -114,12 +91,12 @@ Outputs:    graph with the values for the states
             list of weights used to run the model
             return graph, outWeightList, set_output, alogistic_parameters
 """
-def run_message(message=None, traits=None, states=None, previous_status_dict=None, alogistic_parameters=None, speed_factor=0.5, delta_t = 1, timesteps = 30, weightList=None):
+def run_message(message=None, traits=None, previous_status_dict=None, alogistic_parameters=None, speed_factor=0.5, delta_t = 1, timesteps = 30, weightList=None):
     # Checking the values for the function
     if message is None or len(message) != 13:
         print('Pass the values of the message correctly to the function!')
         exit()
-    if states is None or len(states) != 10:
+    if traits is None or len(traits) != 10:
         print('Pass the values of the states (pp, cs and mood) correctly to the function!')
         exit()
     #if previous_status_dict == None:
@@ -135,7 +112,7 @@ def run_message(message=None, traits=None, states=None, previous_status_dict=Non
             exit()
     
     # Generate graph
-    graph, outWeightList = generate_graph(weightList, traits)
+    graph, outWeightList = generate_graph(weightList)
     #print(graph.nodes(data=True))
     rng = np.arange(0.0, timesteps*delta_t, delta_t)
     pos = None
@@ -182,25 +159,25 @@ def run_message(message=None, traits=None, states=None, previous_status_dict=Non
                         exit()
                 # states are the personality traits of the agent
                 elif node == 'nf_ko':
-                    graph.nodes[node]['status'] = {0:states[0]}
+                    graph.nodes[node]['status'] = {0:traits[0]}
                 elif node == 'nf_ent':
-                    graph.nodes[node]['status'] = {0:states[1]}
+                    graph.nodes[node]['status'] = {0:traits[1]}
                 elif node == 'nf_is':
-                    graph.nodes[node]['status'] = {0:states[2]}
+                    graph.nodes[node]['status'] = {0:traits[2]}
                 elif node == 'nf_si':
-                    graph.nodes[node]['status'] = {0:states[3]}
+                    graph.nodes[node]['status'] = {0:traits[3]}
                 elif node == 'nf_si':
-                    graph.nodes[node]['status'] = {0:states[4]}                
+                    graph.nodes[node]['status'] = {0:traits[4]}                
                 elif node == 'nf_se':
-                    graph.nodes[node]['status'] = {0:states[5]}
+                    graph.nodes[node]['status'] = {0:traits[5]}
                 elif node == 'pt_cons':
-                    graph.nodes[node]['status'] = {0:states[6]}
+                    graph.nodes[node]['status'] = {0:traits[6]}
                 elif node == 'pt_agre':
-                    graph.nodes[node]['status'] = {0:states[7]}
+                    graph.nodes[node]['status'] = {0:traits[7]}
                 elif node == 'pt_extra':
-                    graph.nodes[node]['status'] = {0:states[8]}
+                    graph.nodes[node]['status'] = {0:traits[8]}
                 elif node == 'pt_neur':
-                    graph.nodes[node]['status'] = {0:states[9]}
+                    graph.nodes[node]['status'] = {0:traits[9]}
                 # The other states are set to previous values at the beginning
                 else:
                     if previous_status_dict is None:
