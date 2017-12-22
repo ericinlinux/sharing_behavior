@@ -101,7 +101,7 @@ prep_comm, ssr_pe_c, 1
 prep_share, ssr_pe_s, 1
 ssr_pe_l, prep_like, -1
 ssr_pe_c, prep_comm, -1
-ssr_pe_h, prep_share, -1
+ssr_pe_s, prep_share, -1
 like, ff_se, 1
 comment, ff_se, 1
 share, ff_se, 1
