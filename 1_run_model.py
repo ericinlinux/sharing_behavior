@@ -22,7 +22,7 @@ g, w, s, parameters, psd = model.run_message(message=[1, 0, 1, 0, 0, 0, 0.8, 0.5
                               alogistic_parameters=None, 
                               speed_factor=0.5, delta_t = 1, timesteps = 30, weightList=None)
 
-print(w)
+#print(w)
 
 #print(s)
 

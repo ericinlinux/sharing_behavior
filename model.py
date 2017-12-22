@@ -91,7 +91,9 @@ Outputs:    graph with the values for the states
             list of weights used to run the model
             return graph, outWeightList, set_output, alogistic_parameters
 """
-def run_message(message=None, traits=None, previous_status_dict=None, alogistic_parameters=None, speed_factor=0.5, delta_t = 1, timesteps = 30, weightList=None):
+def run_message(message=None, traits=None, previous_status_dict=None,
+                alogistic_parameters=None, speed_factor=0.5, delta_t=1,
+                timesteps=30, weightList=None):
     # Checking the values for the function
     if message is None or len(message) != 13:
         print('Pass the values of the message correctly to the function!')
@@ -186,7 +188,6 @@ def run_message(message=None, traits=None, previous_status_dict=None, alogistic_
                         graph.nodes[node]['status'] = {0:previous_status_dict[node]}
             continue
 
-
         for node in graph.nodes:
             '''
                 For each node (not 0 nodes...):
@@ -206,7 +207,7 @@ def run_message(message=None, traits=None, previous_status_dict=None, alogistic_
                 print(graph.nodes[node]['status'], t, delta_t, node)
                 print(graph.nodes[node]['attr_dict']['pos'])
 
-            if pos != 'input' and pos != 'attribute':
+            if pos != 'input' and pos != 'trait':
                 # If it is identity, the operation is based on the only neighbor.
                 if func == 'id':
                     try:
@@ -220,7 +221,6 @@ def run_message(message=None, traits=None, previous_status_dict=None, alogistic_
                         #print('<time ', t, '> node:', list(graph.predecessors(node))[0], '-> ', node, '(id)')
                         print(node, list(graph.predecessors(node)))
                         print(t - delta_t)
-                    
 
                 elif func == 'alogistic':
                     # This vector is the input for the alogistic function. It has the values to calculate it
@@ -228,16 +228,16 @@ def run_message(message=None, traits=None, previous_status_dict=None, alogistic_
                     for neig in graph.predecessors(node):
                         neig_w = graph.edges[neig, node]['weight']
                         neig_s = graph.nodes[neig]['status'][t - delta_t]
-                        
-                        values_v.append(neig_w*neig_s)
-                    
+
+                        values_v.append(neig_w * neig_s)
+
                     tau = alogistic_parameters[node][0]
                     sigma = alogistic_parameters[node][1]
                     try:
-                        c = max(0,alogistic(sum(values_v), tau, sigma))
+                        c = max(0, alogistic(sum(values_v), tau, sigma))
                     except OverflowError as err:
                         print(err)
-                    
+
                     # Changes for the speed factors
                     if node == 'mood':
                         sf = alogistic_parameters['mood_speed']
@@ -245,11 +245,7 @@ def run_message(message=None, traits=None, previous_status_dict=None, alogistic_
                         sf = speed_factor
 
                     graph.nodes[node]['status'][t] = previous_state + sf * (c - previous_state) * delta_t
-
-                '''
-                else:
-                    print 'It shouldn\'t be here!'
-                '''
+                
             # In case of inputs, copy the previous state again
             else:
                 graph.nodes[node]['status'][t] = graph.nodes[node]['status'][t - delta_t]
@@ -259,27 +255,23 @@ def run_message(message=None, traits=None, previous_status_dict=None, alogistic_
     for node in graph.nodes():
         psd[node] = graph.nodes[node]['status'][t]
 
-    # 
+    #
     set_output = {"nf_ko": graph.nodes['nf_ko']['status'][t],
-                "nf_ent": graph.nodes['nf_ent']['status'][t],
-                "nf_is": graph.nodes['nf_is']['status'][t],
-                "nf_si": graph.nodes['nf_si']['status'][t],
-                "nf_se": graph.nodes['nf_se']['status'][t],
-                "pt_cons": graph.nodes['pt_cons']['status'][t],
-                "pt_agre": graph.nodes['pt_agre']['status'][t],
-                "pt_extra": graph.nodes['pt_extra']['status'][t],
-                "pt_neur": graph.nodes['pt_neur']['status'][t],
-                }
+                  "nf_ent": graph.nodes['nf_ent']['status'][t],
+                  "nf_is": graph.nodes['nf_is']['status'][t],
+                  "nf_si": graph.nodes['nf_si']['status'][t],
+                  "nf_se": graph.nodes['nf_se']['status'][t],
+                  "pt_cons": graph.nodes['pt_cons']['status'][t],
+                 }
     return graph, outWeightList, set_output, alogistic_parameters, psd
 
 
-'''
-Run a sequence of messages for one agent with specific traits and an initial state
-'''
 def run_message_sequence(message_seq=None, traits=None, states=None, alogistic_parameters=None, title='0'):
-
+    '''
+    Run a sequence of messages for one agent with specific traits and an initial state
+    '''
     timesteps = 20
-    delta_t = 1
+    delta_t = 1 
     speed_factor = 0.8
     weightList=None
     
