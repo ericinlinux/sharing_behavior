@@ -93,7 +93,7 @@ Outputs:    graph with the values for the states
 """
 def run_message(message=None, traits=None, previous_status_dict=None,
                 alogistic_parameters=None, speed_factor=0.5, delta_t=1,
-                timesteps=30, weightList=None, graph=None):
+                timesteps=30, weightList=None):
     # Checking the values for the function
     if message is None or len(message) != 13:
         print('Pass the values of the message correctly to the function!')
@@ -113,11 +113,8 @@ def run_message(message=None, traits=None, previous_status_dict=None,
             print('Couldn\'t read the alogistic parameters! Check the \'alogistic.json\' file!')
             exit()
     
-    # Generate graph in case it does not exist
-    if graph is None:
-        graph, outWeightList = generate_graph(weightList)
-    else:
-        outWeightList = weightList
+    # 
+    graph, outWeightList = generate_graph(weightList)
     #print(graph.nodes(data=True))
 
 
@@ -255,7 +252,7 @@ def run_message(message=None, traits=None, previous_status_dict=None,
         psd[node] = graph.nodes[node]['status'][t]
 
     # all these states (apart from mood) should be the same over the simulation
-    set_output = {"nf_ko": graph.nodes['nf_ko']['status'][t],
+    set_traits = {"nf_ko": graph.nodes['nf_ko']['status'][t],
                   "nf_ent": graph.nodes['nf_ent']['status'][t],
                   "nf_is": graph.nodes['nf_is']['status'][t],
                   "nf_si": graph.nodes['nf_si']['status'][t],
@@ -263,10 +260,10 @@ def run_message(message=None, traits=None, previous_status_dict=None,
                   "pt_cons": graph.nodes['pt_cons']['status'][t],
                   "mood": graph.nodes['mood']['status'][t],
                  }
-    return graph, outWeightList, set_output, alogistic_parameters, psd
+    return graph, outWeightList, set_traits, alogistic_parameters, psd
 
 
-def run_message_sequence(message_seq=None, traits=None, states=None, alogistic_parameters=None, title='0'):
+def run_message_sequence(message_seq=None, traits=None, alogistic_parameters=None, title='0'):
     '''
     Run a sequence of messages for one agent with specific traits and an initial state
     '''
@@ -285,12 +282,11 @@ def run_message_sequence(message_seq=None, traits=None, states=None, alogistic_p
 
     for message in message_seq:
         if psd is None:
-            g, w, s, parameters, psd = run_message(message=message, weightList=weightList, traits=traits, states=states, 
-                alogistic_parameters=alogistic_parameters, speed_factor=speed_factor, delta_t = delta_t, timesteps = timesteps)
+            g, w, s, parameters, psd = run_message(message=message, weightList=weightList, traits=traits, alogistic_parameters=alogistic_parameters, speed_factor=speed_factor, delta_t = delta_t, timesteps = timesteps)
         else:
-            states = [s['pp_cons'], s['pp_lib'], s['cs_cons'], s['cs_lib'], s['mood']]
-            g, w, s, parameters, psd = run_message(message=message, weightList=weightList, traits=traits, states=states, previous_status_dict=psd,
-                alogistic_parameters=alogistic_parameters, speed_factor=speed_factor, delta_t = delta_t, timesteps = timesteps)
+            traits = list(s.values())
+
+            g, w, s, parameters, psd = run_message(message=message, weightList=weightList, traits=traits, previous_status_dict=psd, alogistic_parameters=alogistic_parameters, speed_factor=speed_factor, delta_t = delta_t, timesteps = timesteps)
 
         status_results = {}
         for node in g.nodes():
