@@ -93,13 +93,13 @@ Outputs:    graph with the values for the states
 """
 def run_message(message=None, traits=None, previous_status_dict=None,
                 alogistic_parameters=None, speed_factor=0.5, delta_t=1,
-                timesteps=30, weightList=None):
+                timesteps=30, weightList=None, graph=None):
     # Checking the values for the function
     if message is None or len(message) != 13:
         print('Pass the values of the message correctly to the function!')
         exit()
-    if traits is None or len(traits) != 10:
-        print('Pass the values of the states (pp, cs and mood) correctly to the function!')
+    if traits is None or len(traits) != 7:
+        print('Pass the values of the traits correctly to the function!')
         exit()
     #if previous_status_dict == None:
     #   print 'Starting from zero!'
@@ -113,9 +113,14 @@ def run_message(message=None, traits=None, previous_status_dict=None,
             print('Couldn\'t read the alogistic parameters! Check the \'alogistic.json\' file!')
             exit()
     
-    # Generate graph
-    graph, outWeightList = generate_graph(weightList)
+    # Generate graph in case it does not exist
+    if graph is None:
+        graph, outWeightList = generate_graph(weightList)
+    else:
+        outWeightList = weightList
     #print(graph.nodes(data=True))
+
+
     rng = np.arange(0.0, timesteps*delta_t, delta_t)
     pos = None
     for t in rng:
@@ -168,18 +173,12 @@ def run_message(message=None, traits=None, previous_status_dict=None,
                     graph.nodes[node]['status'] = {0:traits[2]}
                 elif node == 'nf_si':
                     graph.nodes[node]['status'] = {0:traits[3]}
-                elif node == 'nf_si':
-                    graph.nodes[node]['status'] = {0:traits[4]}                
                 elif node == 'nf_se':
-                    graph.nodes[node]['status'] = {0:traits[5]}
+                    graph.nodes[node]['status'] = {0:traits[4]}                
                 elif node == 'pt_cons':
+                    graph.nodes[node]['status'] = {0:traits[5]}
+                elif node == 'mood':
                     graph.nodes[node]['status'] = {0:traits[6]}
-                elif node == 'pt_agre':
-                    graph.nodes[node]['status'] = {0:traits[7]}
-                elif node == 'pt_extra':
-                    graph.nodes[node]['status'] = {0:traits[8]}
-                elif node == 'pt_neur':
-                    graph.nodes[node]['status'] = {0:traits[9]}
                 # The other states are set to previous values at the beginning
                 else:
                     if previous_status_dict is None:
@@ -255,13 +254,14 @@ def run_message(message=None, traits=None, previous_status_dict=None,
     for node in graph.nodes():
         psd[node] = graph.nodes[node]['status'][t]
 
-    #
+    # all these states (apart from mood) should be the same over the simulation
     set_output = {"nf_ko": graph.nodes['nf_ko']['status'][t],
                   "nf_ent": graph.nodes['nf_ent']['status'][t],
                   "nf_is": graph.nodes['nf_is']['status'][t],
                   "nf_si": graph.nodes['nf_si']['status'][t],
                   "nf_se": graph.nodes['nf_se']['status'][t],
                   "pt_cons": graph.nodes['pt_cons']['status'][t],
+                  "mood": graph.nodes['mood']['status'][t],
                  }
     return graph, outWeightList, set_output, alogistic_parameters, psd
 
