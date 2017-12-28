@@ -8,86 +8,63 @@ import numpy as np
 import networkx as nx
 import pandas as pd
 import math
-#import matplotlib.pyplot as plt
 import json
 
 
-"""
-Inputs: weightList with ((source,target),weight) values
-        oc = openness/conscientiousness trait of the agent
-        ja = justification system/adaptability trait of the agent
-        traits is a vector with the information of [openness, adaptability, conscientiousness, system_justification] 
-"""
-def generate_graph(weightList=None, traits=None):
-    # Files with edges and nodes
+def generate_graph(weightList=None):
+    """
+    Inputs: weightList with ((source,target),weight) values
+    """
     try:
         edges_f = open('connections.csv')
         nodes_f = open('states.csv')
     except:
         print("Files for edges and nodes not included in the code folder!")
         exit(0)
-
+    # Initiate graph as digraph (oriented graph)
     graph = nx.DiGraph()
     # Insert nodes
     for line in nodes_f:
+        # Read each line and split to get nodes' name and function
         node, func = line.replace(" ", "").strip().split(',')
-        # Node not included
+        # Avoiding include repeated nodes
         if node not in graph.nodes():
-            if node == 'fs_change':
-                graph.add_node(node, attr_dict={'pos': 'output', 'func': func, 'status':{}} )
-            elif func in ['id', 'alogistic', 'alogistic+', 'diff', 'special']:
-                graph.add_node(node, attr_dict={'pos': 'inner', 'func': func, 'status':{}} )
-            elif func == 'attribute':
-                graph.add_node(node, attr_dict={'pos': 'attribute', 'func': func, 'status':{}} )
+            # If node is output
+            if node in ['like', 'share', 'comment']:
+                graph.add_node(node, attr_dict={'pos': 'output', 'func': func, 'status': {}})
+            # If node is internal state
+            elif func in ['id', 'alogistic']:
+                graph.add_node(node, attr_dict={'pos': 'inner', 'func': func, 'status': {}})
+            # If node is a trait of the participant
+            elif func == 'trait':
+                graph.add_node(node, attr_dict={'pos': 'trait', 'func': func, 'status': {}})
+            # If node is an input
+            elif func == 'input':
+                graph.add_node(node, attr_dict={'pos': 'input', 'func': func, 'status': {}})
             else:
-                graph.add_node(node, attr_dict={'pos': 'input', 'func': func, 'status':{}} )
+                print('Node %s does not match the requirements to create graph.', node)
+                exit(0)
         else:
-            print('<CONFLICT> Node already included in the list!')
-            exit()
+            print('<CONFLICT> Node %s already included in the list!', node)
+            exit(0)
 
     outWeightList = []
-    
+
     # Insert edges
     if weightList is None:
         for line in edges_f:
             source, target, w = line.replace(" ", "").strip().split(',')
-            # [openness, adaptability, conscientiousness, system_justification]
-            if w == 'openness':
-                w = traits[0]
-            elif w == 'adaptability':
-                w = traits[1]
-            elif w == 'conscientiousness':
-                w = traits[2]
-            elif w == 'system_justification':
-                w = traits[3]
-            # In case w is negative, the value will follow
-            else:
-                w = float(w) #*random()
+            #w = float(w) #*random()
             graph.add_edge(source, target, weight=float(w))
             outWeightList.append(((source, target), float(w)))
     else:
         for line in weightList:
             ((source, target), w) = line
-
-            '''pp_cons, cs_cons, conscientiousness
-                cs_cons, pp_cons, system_justification
-                pp_lib, cs_lib, openness
-                cs_lib, pp_lib, adaptability
-            '''
-            if source == 'pp_cons' and target == 'cs_cons':
-                w = traits[0]
-            elif source == 'cs_cons' and target == 'pp_cons':
-                w = traits[1]
-            elif source == 'pp_lib' and target == 'cs_lib':
-                w = traits[2]
-            elif source == 'cs_lib' and target == 'pp_lib':
-                w = traits[3]
             graph.add_edge(source, target, weight=float(w))
             outWeightList.append(((source, target), float(w)))
 
-    #save_graph(graph)  
-
     return graph, outWeightList
+
 
 def save_graph(graph):
     nx.draw_spring(graph, with_labels = True)
@@ -114,13 +91,15 @@ Outputs:    graph with the values for the states
             list of weights used to run the model
             return graph, outWeightList, set_output, alogistic_parameters
 """
-def run_message(message=None, traits=None, states=None, previous_status_dict=None, alogistic_parameters=None, speed_factor=0.5, delta_t = 1, timesteps = 30, weightList=None):
+def run_message(message=None, traits=None, previous_status_dict=None,
+                alogistic_parameters=None, speed_factor=0.5, delta_t=1,
+                timesteps=30, weightList=None):
     # Checking the values for the function
     if message is None or len(message) != 13:
         print('Pass the values of the message correctly to the function!')
         exit()
-    if states is None or len(states) != 10:
-        print('Pass the values of the states (pp, cs and mood) correctly to the function!')
+    if traits is None or len(traits) != 7:
+        print('Pass the values of the traits correctly to the function!')
         exit()
     #if previous_status_dict == None:
     #   print 'Starting from zero!'
@@ -134,9 +113,11 @@ def run_message(message=None, traits=None, states=None, previous_status_dict=Non
             print('Couldn\'t read the alogistic parameters! Check the \'alogistic.json\' file!')
             exit()
     
-    # Generate graph
-    graph, outWeightList = generate_graph(weightList, traits)
+    # 
+    graph, outWeightList = generate_graph(weightList)
     #print(graph.nodes(data=True))
+
+
     rng = np.arange(0.0, timesteps*delta_t, delta_t)
     pos = None
     for t in rng:
@@ -182,25 +163,19 @@ def run_message(message=None, traits=None, states=None, previous_status_dict=Non
                         exit()
                 # states are the personality traits of the agent
                 elif node == 'nf_ko':
-                    graph.nodes[node]['status'] = {0:states[0]}
+                    graph.nodes[node]['status'] = {0:traits[0]}
                 elif node == 'nf_ent':
-                    graph.nodes[node]['status'] = {0:states[1]}
+                    graph.nodes[node]['status'] = {0:traits[1]}
                 elif node == 'nf_is':
-                    graph.nodes[node]['status'] = {0:states[2]}
+                    graph.nodes[node]['status'] = {0:traits[2]}
                 elif node == 'nf_si':
-                    graph.nodes[node]['status'] = {0:states[3]}
-                elif node == 'nf_si':
-                    graph.nodes[node]['status'] = {0:states[4]}                
+                    graph.nodes[node]['status'] = {0:traits[3]}
                 elif node == 'nf_se':
-                    graph.nodes[node]['status'] = {0:states[5]}
+                    graph.nodes[node]['status'] = {0:traits[4]}                
                 elif node == 'pt_cons':
-                    graph.nodes[node]['status'] = {0:states[6]}
-                elif node == 'pt_agre':
-                    graph.nodes[node]['status'] = {0:states[7]}
-                elif node == 'pt_extra':
-                    graph.nodes[node]['status'] = {0:states[8]}
-                elif node == 'pt_neur':
-                    graph.nodes[node]['status'] = {0:states[9]}
+                    graph.nodes[node]['status'] = {0:traits[5]}
+                elif node == 'mood':
+                    graph.nodes[node]['status'] = {0:traits[6]}
                 # The other states are set to previous values at the beginning
                 else:
                     if previous_status_dict is None:
@@ -208,7 +183,6 @@ def run_message(message=None, traits=None, states=None, previous_status_dict=Non
                     else:
                         graph.nodes[node]['status'] = {0:previous_status_dict[node]}
             continue
-
 
         for node in graph.nodes:
             '''
@@ -218,6 +192,7 @@ def run_message(message=None, traits=None, states=None, previous_status_dict=Non
                     get the weights for the edges
                     calculate the new status value for the node in time t
             '''
+
             func = graph.nodes[node]['attr_dict']['func']
             pos = graph.nodes[node]['attr_dict']['pos']
 
@@ -228,7 +203,7 @@ def run_message(message=None, traits=None, states=None, previous_status_dict=Non
                 print(graph.nodes[node]['status'], t, delta_t, node)
                 print(graph.nodes[node]['attr_dict']['pos'])
 
-            if pos != 'input' and pos != 'attribute':
+            if pos != 'input' and pos != 'trait':
                 # If it is identity, the operation is based on the only neighbor.
                 if func == 'id':
                     try:
@@ -242,7 +217,6 @@ def run_message(message=None, traits=None, states=None, previous_status_dict=Non
                         #print('<time ', t, '> node:', list(graph.predecessors(node))[0], '-> ', node, '(id)')
                         print(node, list(graph.predecessors(node)))
                         print(t - delta_t)
-                    
 
                 elif func == 'alogistic':
                     # This vector is the input for the alogistic function. It has the values to calculate it
@@ -250,16 +224,16 @@ def run_message(message=None, traits=None, states=None, previous_status_dict=Non
                     for neig in graph.predecessors(node):
                         neig_w = graph.edges[neig, node]['weight']
                         neig_s = graph.nodes[neig]['status'][t - delta_t]
-                        
-                        values_v.append(neig_w*neig_s)
-                    
+
+                        values_v.append(neig_w * neig_s)
+
                     tau = alogistic_parameters[node][0]
                     sigma = alogistic_parameters[node][1]
                     try:
-                        c = max(0,alogistic(sum(values_v), tau, sigma))
+                        c = max(0, alogistic(sum(values_v), tau, sigma))
                     except OverflowError as err:
                         print(err)
-                    
+
                     # Changes for the speed factors
                     if node == 'mood':
                         sf = alogistic_parameters['mood_speed']
@@ -267,11 +241,7 @@ def run_message(message=None, traits=None, states=None, previous_status_dict=Non
                         sf = speed_factor
 
                     graph.nodes[node]['status'][t] = previous_state + sf * (c - previous_state) * delta_t
-
-                '''
-                else:
-                    print 'It shouldn\'t be here!'
-                '''
+                
             # In case of inputs, copy the previous state again
             else:
                 graph.nodes[node]['status'][t] = graph.nodes[node]['status'][t - delta_t]
@@ -281,27 +251,24 @@ def run_message(message=None, traits=None, states=None, previous_status_dict=Non
     for node in graph.nodes():
         psd[node] = graph.nodes[node]['status'][t]
 
-    # 
-    set_output = {"nf_ko": graph.nodes['nf_ko']['status'][t],
-                "nf_ent": graph.nodes['nf_ent']['status'][t],
-                "nf_is": graph.nodes['nf_is']['status'][t],
-                "nf_si": graph.nodes['nf_si']['status'][t],
-                "nf_se": graph.nodes['nf_se']['status'][t],
-                "pt_cons": graph.nodes['pt_cons']['status'][t],
-                "pt_agre": graph.nodes['pt_agre']['status'][t],
-                "pt_extra": graph.nodes['pt_extra']['status'][t],
-                "pt_neur": graph.nodes['pt_neur']['status'][t],
-                }
-    return graph, outWeightList, set_output, alogistic_parameters, psd
+    # all these states (apart from mood) should be the same over the simulation
+    set_traits = {"nf_ko": graph.nodes['nf_ko']['status'][t],
+                  "nf_ent": graph.nodes['nf_ent']['status'][t],
+                  "nf_is": graph.nodes['nf_is']['status'][t],
+                  "nf_si": graph.nodes['nf_si']['status'][t],
+                  "nf_se": graph.nodes['nf_se']['status'][t],
+                  "pt_cons": graph.nodes['pt_cons']['status'][t],
+                  "mood": graph.nodes['mood']['status'][t],
+                 }
+    return graph, outWeightList, set_traits, alogistic_parameters, psd
 
 
-'''
-Run a sequence of messages for one agent with specific traits and an initial state
-'''
-def run_message_sequence(message_seq=None, traits=None, states=None, alogistic_parameters=None, title='0'):
-
+def run_message_sequence(message_seq=None, traits=None, alogistic_parameters=None, title='0'):
+    '''
+    Run a sequence of messages for one agent with specific traits and an initial state
+    '''
     timesteps = 20
-    delta_t = 1
+    delta_t = 1 
     speed_factor = 0.8
     weightList=None
     
@@ -315,12 +282,11 @@ def run_message_sequence(message_seq=None, traits=None, states=None, alogistic_p
 
     for message in message_seq:
         if psd is None:
-            g, w, s, parameters, psd = run_message(message=message, weightList=weightList, traits=traits, states=states, 
-                alogistic_parameters=alogistic_parameters, speed_factor=speed_factor, delta_t = delta_t, timesteps = timesteps)
+            g, w, s, parameters, psd = run_message(message=message, weightList=weightList, traits=traits, alogistic_parameters=alogistic_parameters, speed_factor=speed_factor, delta_t = delta_t, timesteps = timesteps)
         else:
-            states = [s['pp_cons'], s['pp_lib'], s['cs_cons'], s['cs_lib'], s['mood']]
-            g, w, s, parameters, psd = run_message(message=message, weightList=weightList, traits=traits, states=states, previous_status_dict=psd,
-                alogistic_parameters=alogistic_parameters, speed_factor=speed_factor, delta_t = delta_t, timesteps = timesteps)
+            traits = list(s.values())
+
+            g, w, s, parameters, psd = run_message(message=message, weightList=weightList, traits=traits, previous_status_dict=psd, alogistic_parameters=alogistic_parameters, speed_factor=speed_factor, delta_t = delta_t, timesteps = timesteps)
 
         status_results = {}
         for node in g.nodes():
