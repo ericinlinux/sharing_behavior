@@ -13,7 +13,7 @@ from pprint import pprint
 g, w = model.generate_graph()
 
 #pprint(g.edges(data=True), indent=2)
-msg_sequence = np.genfromtxt('messages.csv', delimiter=',', skip_header=1)
+msg_sequence = np.genfromtxt('data/messages.csv', delimiter=',', skip_header=1)
 
 # [1, 0.2, 0.8, 0.5, 0.2, 0.6, 1, 0.01, 0]
 

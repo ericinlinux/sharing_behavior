@@ -16,10 +16,10 @@ def generate_graph(weightList=None):
     Inputs: weightList with ((source,target),weight) values
     """
     try:
-        edges_f = open('connections.csv')
-        nodes_f = open('states.csv')
+        edges_f = open('data/connections.csv')
+        nodes_f = open('data/states.csv')
     except:
-        print("Files for edges and nodes not included in the code folder!")
+        print("Files absent: connections.csv and states.csv not included in the data folder!")
         exit(0)
     # Initiate graph as digraph (oriented graph)
     graph = nx.DiGraph()
@@ -95,8 +95,9 @@ def run_message(message=None, traits=None, previous_status_dict=None,
                 alogistic_parameters=None, speed_factor=0.5, delta_t=1,
                 timesteps=30, weightList=None):
     # Checking the values for the function
-    if message is None or len(message) != 13:
+    if message is None or len(message) != 12:
         print('Pass the values of the message correctly to the function!')
+        print(message)
         exit()
     if traits is None or len(traits) != 7:
         print('Pass the values of the traits correctly to the function!')
@@ -107,7 +108,7 @@ def run_message(message=None, traits=None, previous_status_dict=None,
     # Read the json file with the alogistic parameters
     if alogistic_parameters is None:
         try:
-            with open('alogistic.json') as data_file:    
+            with open('data/alogistic.json') as data_file:    
                 alogistic_parameters = json.load(data_file)
         except:
             print('Couldn\'t read the alogistic parameters! Check the \'alogistic.json\' file!')
@@ -135,29 +136,29 @@ def run_message(message=None, traits=None, previous_status_dict=None,
                 # message[0] is the time of the message
                 if pos == 'input':
                     if node == 'msg_cat_per':
-                        graph.nodes[node]['status'] = {0:message[1]}
+                        graph.nodes[node]['status'] = {0:message[0]}
                     elif node == 'msg_cat_ent':
-                        graph.nodes[node]['status'] = {0:message[2]}
+                        graph.nodes[node]['status'] = {0:message[1]}
                     elif node == 'msg_cat_new':
-                        graph.nodes[node]['status'] = {0:message[3]}
+                        graph.nodes[node]['status'] = {0:message[2]}
                     elif node == 'msg_cat_edu':
-                        graph.nodes[node]['status'] = {0:message[4]}
+                        graph.nodes[node]['status'] = {0:message[3]}
                     elif node == 'msg_cat_con':
-                        graph.nodes[node]['status'] = {0:message[5]}
+                        graph.nodes[node]['status'] = {0:message[4]}
                     elif node == 'msg_rel':
-                        graph.nodes[node]['status'] = {0:message[6]}
+                        graph.nodes[node]['status'] = {0:message[5]}
                     elif node == 'msg_qua':
-                        graph.nodes[node]['status'] = {0:message[7]}
+                        graph.nodes[node]['status'] = {0:message[6]}
                     elif node == 'msg_sen':
-                        graph.nodes[node]['status'] = {0:message[8]}
+                        graph.nodes[node]['status'] = {0:message[7]}
                     elif node == 'msg_sal':
-                        graph.nodes[node]['status'] = {0:message[9]}
+                        graph.nodes[node]['status'] = {0:message[8]}
                     elif node == 'msg_med':
-                        graph.nodes[node]['status'] = {0:message[10]}
+                        graph.nodes[node]['status'] = {0:message[9]}
                     elif node == 'msg_com':
-                        graph.nodes[node]['status'] = {0:message[11]}
+                        graph.nodes[node]['status'] = {0:message[10]}
                     elif node == 'msg_que':
-                        graph.nodes[node]['status'] = {0:message[12]}
+                        graph.nodes[node]['status'] = {0:message[11]}
                     else:
                         print('Node with wrong value:', node)
                         exit()

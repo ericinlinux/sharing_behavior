@@ -50,7 +50,7 @@ for i in range(number_of_messages):
 	messages = messages.append(message, ignore_index=True)
 
 
-print messages.head()
+print(messages.head())
 
 
 #Export dataframe to .csv
