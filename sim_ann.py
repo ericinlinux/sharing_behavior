@@ -41,25 +41,7 @@ def neighbor(json_parameters):
     maxn_sigma = 20
     
     for key in json_parameters.keys():
-        if key == 'pp_speed':
-            pp_sf = json_parameters[key]
-            inf_speed = -0.01
-            sup_speed = 0.01
-            new_pp = pp_sf + ((sup_speed - inf_speed) * random() + inf_speed)
-            new_pp = minn if new_pp < minn else maxn_tau if new_pp > maxn_tau else new_pp
-            
-            json_parameters[key] = new_pp
-
-        elif key == 'cs_speed':
-            cs_sf = json_parameters[key]
-            inf_speed = -0.005
-            sup_speed = 0.005
-            new_cs = cs_sf + ((sup_speed - inf_speed) * random() + inf_speed)
-            new_cs = minn if new_cs < minn else maxn_tau if new_cs > maxn_tau else new_cs
-
-            json_parameters[key] = new_cs
-        
-        elif key == 'mood_speed':
+        if key == 'mood_speed':
             mood_speed = json_parameters[key]
             inf_speed = -0.01
             sup_speed = 0.01
@@ -78,8 +60,6 @@ def neighbor(json_parameters):
             # json_parameters[key] = [new_tau, new_sigma]
             json_parameters[key] = [new_tau, new_sigma]
             # json_parameters[key] = [tau, new_sigma]
-        
-        
 
     return json_parameters
 
