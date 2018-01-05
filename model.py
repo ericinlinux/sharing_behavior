@@ -54,9 +54,10 @@ def generate_graph(weightList=None):
     if weightList is None:
         for line in edges_f:
             source, target, w = line.replace(" ", "").strip().split(',')
-            #w = float(w) #*random()
+
             graph.add_edge(source, target, weight=float(w))
             outWeightList.append(((source, target), float(w)))
+    # In case you have changes in the edges over time.
     else:
         for line in weightList:
             ((source, target), w) = line
@@ -113,11 +114,8 @@ def run_message(message=None, traits=None, previous_status_dict=None,
         except:
             print('Couldn\'t read the alogistic parameters! Check the \'alogistic.json\' file!')
             exit()
-    
-    # 
-    graph, outWeightList = generate_graph(weightList)
-    #print(graph.nodes(data=True))
 
+    graph, outWeightList = generate_graph(weightList)
 
     rng = np.arange(0.0, timesteps*delta_t, delta_t)
     pos = None
@@ -181,6 +179,7 @@ def run_message(message=None, traits=None, previous_status_dict=None,
                 else:
                     if previous_status_dict is None:
                         graph.nodes[node]['status'] = {0:0}
+                    # Keeping the state of the nodes from previous timestep
                     else:
                         graph.nodes[node]['status'] = {0:previous_status_dict[node]}
             continue
@@ -267,6 +266,10 @@ def run_message(message=None, traits=None, previous_status_dict=None,
 def run_message_sequence(message_seq=None, traits=None, alogistic_parameters=None, title='0'):
     '''
     Run a sequence of messages for one agent with specific traits and an initial state
+    message_seq: array of messages
+    traits:
+    alogistic_parameters:
+    title: Title for graphics to be plotted.
     '''
     timesteps = 20
     delta_t = 1 
@@ -278,16 +281,11 @@ def run_message_sequence(message_seq=None, traits=None, alogistic_parameters=Non
     # previous_states_dict
     psd = None
 
-    # Initial states of the agent (pp_cons, pp_lib, cs_cons, cs_lib, mood)
-    # a1States = [0.1, 0.8, 0.2, 0.7, 0.5]
-
     for message in message_seq:
         if psd is None:
-            g, w, s, parameters, psd = run_message(message=message, weightList=weightList, traits=traits, alogistic_parameters=alogistic_parameters, speed_factor=speed_factor, delta_t = delta_t, timesteps = timesteps)
+            g, w, set_traits, parameters, psd = run_message(message=message, weightList=weightList, traits=traits, alogistic_parameters=alogistic_parameters, speed_factor=speed_factor, delta_t=delta_t, timesteps=timesteps)
         else:
-            traits = list(s.values())
-
-            g, w, s, parameters, psd = run_message(message=message, weightList=weightList, traits=traits, previous_status_dict=psd, alogistic_parameters=alogistic_parameters, speed_factor=speed_factor, delta_t = delta_t, timesteps = timesteps)
+            g, w, set_traits, parameters, psd = run_message(message=message, weightList=weightList, traits=list(set_traits.values()), previous_status_dict=psd, alogistic_parameters=alogistic_parameters, speed_factor=speed_factor, delta_t=delta_t, timesteps=timesteps)
 
         status_results = {}
         for node in g.nodes():
