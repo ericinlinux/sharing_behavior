@@ -9,6 +9,7 @@ import networkx as nx
 import pandas as pd
 import math
 import json
+import sys
 
 
 def generate_graph(weightList=None):
@@ -20,7 +21,7 @@ def generate_graph(weightList=None):
         nodes_f = open('data/states.csv')
     except:
         print("Files absent: connections.csv and states.csv not included in the data folder!")
-        exit(0)
+        sys.exit(0)
     # Initiate graph as digraph (oriented graph)
     graph = nx.DiGraph()
     # Insert nodes
@@ -43,10 +44,10 @@ def generate_graph(weightList=None):
                 graph.add_node(node, attr_dict={'pos': 'input', 'func': func, 'status': {}})
             else:
                 print('Node %s does not match the requirements to create graph.', node)
-                exit(0)
+                sys.exit(0)
         else:
             print('<CONFLICT> Node %s already included in the list!', node)
-            exit(0)
+            sys.exit(0)
 
     outWeightList = []
 
@@ -99,10 +100,11 @@ def run_message(message=None, traits=None, previous_status_dict=None,
     if message is None or len(message) != 12:
         print('Pass the values of the message correctly to the function!')
         print(message)
-        exit()
+        print(message.shape)
+        sys.exit()
     if traits is None or len(traits) != 7:
         print('Pass the values of the traits correctly to the function!')
-        exit()
+        sys.exit()
     #if previous_status_dict == None:
     #   print 'Starting from zero!'
         
@@ -113,7 +115,7 @@ def run_message(message=None, traits=None, previous_status_dict=None,
                 alogistic_parameters = json.load(data_file)
         except:
             print('Couldn\'t read the alogistic parameters! Check the \'alogistic.json\' file!')
-            exit()
+            sys.exit()
 
     graph, outWeightList = generate_graph(weightList)
 
@@ -159,7 +161,7 @@ def run_message(message=None, traits=None, previous_status_dict=None,
                         graph.nodes[node]['status'] = {0:message[11]}
                     else:
                         print('Node with wrong value:', node)
-                        exit()
+                        sys.exit()
                 # states are the personality traits of the agent
                 elif node == 'nf_ko':
                     graph.nodes[node]['status'] = {0:traits[0]}
