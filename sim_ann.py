@@ -135,6 +135,7 @@ def get_error(parameters=None, plot=False):
         result3 = pool.apply_async(model.run_message_sequence, (messages3.values, a3_traits,
                                                  parameters, 'nb3'))
         df1, df2, df3 = result1.get()[0], result2.get()[0], result3.get()[0]
+        parameters = result1.get()[1]
 
 
     df1.index = df1.index.astype(int)
