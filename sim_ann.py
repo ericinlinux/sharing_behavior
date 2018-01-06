@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from random import random
+from multiprocessing.pool import Pool
 
 
 
@@ -117,13 +118,24 @@ def get_error(parameters=None, plot=False):
     reactions3 = reactions3[['like', 'comment', 'share']]
 
     # Simulation
-    # Agent
+    # Agent 
+    '''
     df1, parameters = model.run_message_sequence(messages1.values, a1_traits,
                                                  alogistic_parameters=parameters, title='nb1')
     df2, parameters = model.run_message_sequence(messages2.values, a2_traits,
                                                  alogistic_parameters=parameters, title='nb2')
     df3, parameters = model.run_message_sequence(messages3.values, a3_traits,
                                                  alogistic_parameters=parameters, title='nb3')
+    '''
+    with Pool() as pool:
+        result1 = pool.apply_async(model.run_message_sequence, (messages1.values, a1_traits,
+                                                 parameters, 'nb1'))
+        result2 = pool.apply_async(model.run_message_sequence, (messages2.values, a2_traits,
+                                                 parameters, 'nb2'))
+        result3 = pool.apply_async(model.run_message_sequence, (messages3.values, a3_traits,
+                                                 parameters, 'nb3'))
+        df1, df2, df3 = result1.get()[0], result2.get()[0], result3.get()[0]
+
 
     df1.index = df1.index.astype(int)
     dfpoints1 = df1[['like', 'share', 'comment']].iloc[reactions1.index]
