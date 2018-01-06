@@ -127,6 +127,10 @@ def get_error(parameters=None, plot=False):
     df3, parameters = model.run_message_sequence(messages3.values, a3_traits,
                                                  alogistic_parameters=parameters, title='nb3')
     '''
+
+    '''
+    https://stackoverflow.com/questions/37873501/get-return-value-for-multi-processing-functions-in-python
+    '''
     with Pool() as pool:
         result1 = pool.apply_async(model.run_message_sequence, (messages1.values, a1_traits,
                                                  parameters, 'nb1'))
