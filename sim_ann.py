@@ -4,6 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from random import random
 from multiprocessing.pool import Pool
+from pprint import pprint
 
 
 '''
@@ -23,8 +24,8 @@ def neighbor(json_parameters):
     for key in json_parameters.keys():
         if key == 'mood_speed':
             mood_speed = json_parameters[key]
-            inf_speed = -0.01
-            sup_speed = 0.01
+            inf_speed = -0.1
+            sup_speed = 0.1
             new_mood_speed = mood_speed + ((sup_speed - inf_speed) * random() + inf_speed)
             new_mood_speed = minn if new_mood_speed < minn else maxn_tau if new_mood_speed > maxn_tau else new_mood_speed
             json_parameters[key] = new_mood_speed
@@ -56,7 +57,7 @@ def acceptance_probability(old_cost, new_cost, T):
 The empirical data should have a set of messages as input and different agents being simulated.
 
 '''
-def get_error(parameters=None, plot=False):
+def get_error(parameters=None):
     mood = 0.5
 
     # Get the traits for the agents
@@ -153,54 +154,17 @@ def get_error(parameters=None, plot=False):
     dfpoints3 = df3[['like', 'share', 'comment']].iloc[reactions3.index]
     error3 = ((dfpoints3-reactions3)**2).sum().sum()
 
-
-    if plot:
-        df1[['pp_cons', 'pp_lib', 'mood', 'cs_cons', 'cs_lib']].plot(figsize=((14,8)))
-        plt.savefig('output_a1.png')
-        plt.clf()
-        # df1[['es_r', 'fs_change']].plot(figsize=((14,8)))
-        df1[['fs_change', 'fc_cons', 'fc_lib']].plot(figsize=((14,8)))
-        plt.savefig('output_a1e.png')
-        plt.clf()
-
-        df2[['pp_cons', 'pp_lib', 'mood', 'cs_cons', 'cs_lib']].plot(figsize=((14,6)))
-        plt.savefig('output_a2.png')
-        plt.clf()
-        df2[['fs_change', 'fc_cons', 'fc_lib']].plot(figsize=((14,8)))
-        plt.savefig('output_a2e.png')
-        plt.clf()
-        
-        df3[['pp_cons', 'pp_lib', 'mood', 'cs_cons', 'cs_lib']].plot(figsize=((14,6)))
-        plt.savefig('output_a3.png')
-        plt.clf()
-        df3[['fs_change']].plot(figsize=((14,8)))
-        plt.savefig('output_a3e.png')
-        plt.clf()
-
     #Calculate error
     sum_err = error1+error2+error3
 
-    return sum_err, parameters
+    # the data frames are important for ploting later.
+    return sum_err, parameters, dfpoints1, reactions1, dfpoints2, reactions2, dfpoints3, reactions3
 
 
 
 def plot_results(parameters, cost_hist, parameters_hist):
 
     sum_err, parameters, df1, empdf1, df2, empdf2, df3, empdf3 = get_error(parameters=parameters, plot=True)
-    '''
-    i = 0
-    new_dict = {}
-    for item in parameters_hist:
-        for parameter in item:
-            if parameter[0] not in new_dict.keys():
-                new_dict[parameter[0]] = []
-            else:
-                new_dict[parameter[0]].append(parameter[1])
-        i += 1
-
-    df = pd.DataFrame(new_dict)
-    df.columns.names = ['source', 'target']
-    '''
 
     fig = plt.figure(figsize=((12, 6)))
 
@@ -244,7 +208,7 @@ def parameter_tuning(parameters=None):
     parameters_hist = list([])
 
     # Actual cost
-    old_cost, initial_parameters = get_error()
+    old_cost, initial_parameters, _, _, _, _, _, _ = get_error()
     cost_hist.append(old_cost)
     parameters_hist.append(initial_parameters)
 
@@ -258,10 +222,10 @@ def parameter_tuning(parameters=None):
         print('Temp: ', T)
         i = 1
         # original = 100
-        while i <= 100:
+        while i <= 10:
             
             new_parameters = neighbor(parameters.copy())
-            new_cost, new_parameters = get_error(new_parameters)
+            new_cost, new_parameters, _, _, _, _, _, _  = get_error(new_parameters)
             
             if new_cost < old_cost:
                 parameters = new_parameters.copy()
@@ -281,7 +245,7 @@ def parameter_tuning(parameters=None):
         print(cost_hist[-1])
         T = T*alpha
 
-    plot_results(parameters, cost_hist, parameters_hist)
+    # plot_results(parameters, cost_hist, parameters_hist)
 
     return parameters, cost_hist, parameters_hist
 

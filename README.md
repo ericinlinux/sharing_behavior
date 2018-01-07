@@ -63,6 +63,7 @@ def run_message(message=None, traits=None, previous_status_dict=None,
 ```python
 def run_message_sequence(message_seq=None, traits=None, alogistic_parameters=None, title='0'):
 	...
+	return inputsDF, parameters
 ```
 
 **Inputs:**
@@ -75,7 +76,7 @@ def run_message_sequence(message_seq=None, traits=None, alogistic_parameters=Non
 **Outputs:**
 
 * **inputsDF:** simulation data for all the nodes in the DiGraph.
-* **parameters:** 
+* **parameters:** dictionary with the values for the threshold and steepness for all the traits to be passed to run_message.
 
 ### The parameter tuning
 
