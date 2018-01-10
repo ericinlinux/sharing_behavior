@@ -95,27 +95,27 @@ def get_error(parameters=None):
                         'msg_cat_con', 'msg_rel', 'msg_qua', 'msg_sen', 
                         'msg_sal', 'msg_med', 'msg_com', 'msg_que']]
     
-    reactions1 = data_a1[['like', 'comment', 'share']]
-    reactions2 = data_a2[['like', 'comment', 'share']]
-    reactions3 = data_a3[['like', 'comment', 'share']]
+    reactions1 = data_a1[['mood', 'like', 'comment', 'share']]
+    reactions2 = data_a2[['mood', 'like', 'comment', 'share']]
+    reactions3 = data_a3[['mood', 'like', 'comment', 'share']]
 
     # Fitting the empirical data for a1 (reactions)
     reactions1 = reactions1.rename(columns=lambda x: x.strip())
     reactions1['time'] = (reactions1.index+1)*20-1
     reactions1.index = reactions1['time']
-    reactions1 = reactions1[['like', 'comment', 'share']]
+    reactions1 = reactions1[['mood', 'like', 'comment', 'share']]
 
     # Fitting the empirical data for a2 (reactions)
     reactions2 = reactions2.rename(columns=lambda x: x.strip())
     reactions2['time'] = (reactions2.index+1)*20-1
     reactions2.index = reactions2['time']
-    reactions2 = reactions2[['like', 'comment', 'share']]
+    reactions2 = reactions2[['mood', 'like', 'comment', 'share']]
 
     # Fitting the empirical data for a3 (reactions)
     reactions3 = reactions3.rename(columns=lambda x: x.strip())
     reactions3['time'] = (reactions3.index+1)*20-1
     reactions3.index = reactions3['time']
-    reactions3 = reactions3[['like', 'comment', 'share']]
+    reactions3 = reactions3[['mood', 'like', 'comment', 'share']]
 
     # Simulation
     # Agent 
@@ -143,15 +143,15 @@ def get_error(parameters=None):
 
 
     df1.index = df1.index.astype(int)
-    dfpoints1 = df1[['like', 'share', 'comment']].iloc[reactions1.index]
+    dfpoints1 = df1[['mood', 'like', 'share', 'comment']].iloc[reactions1.index]
     error1 = ((dfpoints1-reactions1)**2).sum().sum()
 
     df2.index = df2.index.astype(int)
-    dfpoints2 = df2[['like', 'share', 'comment']].iloc[reactions2.index]
+    dfpoints2 = df2[['mood', 'like', 'share', 'comment']].iloc[reactions2.index]
     error2 = ((dfpoints2-reactions2)**2).sum().sum()
     
     df3.index = df3.index.astype(int)
-    dfpoints3 = df3[['like', 'share', 'comment']].iloc[reactions3.index]
+    dfpoints3 = df3[['mood', 'like', 'share', 'comment']].iloc[reactions3.index]
     error3 = ((dfpoints3-reactions3)**2).sum().sum()
 
     #Calculate error
@@ -159,6 +159,7 @@ def get_error(parameters=None):
 
     # the data frames are important for ploting later.
     return sum_err, parameters, dfpoints1, reactions1, dfpoints2, reactions2, dfpoints3, reactions3
+
 
 
 
