@@ -3,30 +3,11 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from random import random
-
+from multiprocessing.pool import Pool
+from pprint import pprint
 
 
 '''
-Shape of the json file:
-{   "fs_s": [0.5, 10],
-    "fs_h": [0.5, 10],
-    "mood": [0.5,2],
-    "cons_acc": [0.5, 10],
-    "lib_acc": [0.5, 10],
-    "cons_content": [0.5,10],
-    "lib_content": [0.5,10],
-    "cons_eval": [0.5, 2],
-    "lib_eval": [0.5, 2],
-    "fc_lib": [0.5,10],
-    "fc_cons": [0.5,10],
-    "pp_cons": [0.5,5],
-    "pp_lib": [0.5,5], 
-    "cs_cons": [0.5, 5],
-    "cs_lib": [0.5, 5],
-    "fs_change": [0.5, 10],
-    "es_a": [0.5,2],
-    "es_r": [0.5,2]
-}
 '''
 def neighbor(json_parameters):
     # inf_tau = -0.05
@@ -36,33 +17,15 @@ def neighbor(json_parameters):
     minn = 0.00001
     maxn_tau = 1
     
-    inf_sigma = -0.5
-    sup_sigma = 0.5
-    maxn_sigma = 20
+    inf_sigma = -0.1
+    sup_sigma = 0.1
+    maxn_sigma = 10
     
     for key in json_parameters.keys():
-        if key == 'pp_speed':
-            pp_sf = json_parameters[key]
-            inf_speed = -0.01
-            sup_speed = 0.01
-            new_pp = pp_sf + ((sup_speed - inf_speed) * random() + inf_speed)
-            new_pp = minn if new_pp < minn else maxn_tau if new_pp > maxn_tau else new_pp
-            
-            json_parameters[key] = new_pp
-
-        elif key == 'cs_speed':
-            cs_sf = json_parameters[key]
-            inf_speed = -0.005
-            sup_speed = 0.005
-            new_cs = cs_sf + ((sup_speed - inf_speed) * random() + inf_speed)
-            new_cs = minn if new_cs < minn else maxn_tau if new_cs > maxn_tau else new_cs
-
-            json_parameters[key] = new_cs
-        
-        elif key == 'mood_speed':
+        if key == 'mood_speed':
             mood_speed = json_parameters[key]
-            inf_speed = -0.01
-            sup_speed = 0.01
+            inf_speed = -0.1
+            sup_speed = 0.1
             new_mood_speed = mood_speed + ((sup_speed - inf_speed) * random() + inf_speed)
             new_mood_speed = minn if new_mood_speed < minn else maxn_tau if new_mood_speed > maxn_tau else new_mood_speed
             json_parameters[key] = new_mood_speed
@@ -75,11 +38,7 @@ def neighbor(json_parameters):
             new_sigma = sigma + ((sup_sigma - inf_sigma) * random() + inf_sigma)
             new_sigma = minn if new_sigma < minn else maxn_sigma if new_sigma > maxn_sigma else new_sigma
 
-            # json_parameters[key] = [new_tau, new_sigma]
             json_parameters[key] = [new_tau, new_sigma]
-            # json_parameters[key] = [tau, new_sigma]
-        
-        
 
     return json_parameters
 
@@ -97,150 +56,115 @@ def acceptance_probability(old_cost, new_cost, T):
 '''
 The empirical data should have a set of messages as input and different agents being simulated.
 
-- Different agents can be simulated using different traits, which are 
-    [openness, adaptability, conscientiousness, system_justification]
-    pp_cons, cs_cons, conscientiousness
-    cs_cons, pp_cons, system_justification
-    pp_lib, cs_lib, openness
-    cs_lib, pp_lib, adaptability
-
-    So, for this, we can have three agents as scenarios:
-        agent 1: [0.9, 0.9, 0.90.1, 0.1]
-        agent 2: [0.1, 0.1, 0.9, 0.9]
-        agent 3: [0.5, 0.5, 0.5, 0.5]
-
-- We need to set a common start state for each agent which would suit them the best:
-    [pp_cons, pp_lib, cs_cons, cs_lib, mood]
-    
-    agent 1: [0.1, 0.8, 0.2, 0.7, 0.5]
-    agent 2: [0.75, 0.05, 0.8, 0.1, 0.5]
-    agent 3: [0.1, 0.1, 0.15, 0.2, 0.5]
-
-- Now we need a set of messages. Each message carries along with it:
-    [msg_s, msg_p,msg_q]
-
-    Sequence of 5x [happy, conservative, objective]: [1.0, 0.01 1.0, 0.01, 1.0, 0.01]
-    Sequence of 5x [balanced, conservative, objective]: [0.5, 0.5, 1.0, 0.01, 1.0, 0.01]
-    Sequence of 5x [happy, balanced, objective]: [1.0, 0.01, 0.5, 0.5, 1.0, 0.01]
-    Sequence of 5x [happy, conservative, balanced]: [1.0, 0.01, 1.0, 0.01,  0.5, 0.5]
-
-    Sequence of 5x [happy, liberal, objective]: [1.0, 0.01, 0.01, 1.0, 1.0, 0.01]
-    Sequence of 5x [balanced, liberal, objective]: [0.5, 0.5, 0.01, 1.0, 1.0, 0.01]
-    Sequence of 5x [happy, balanced, objective]: [1.0, 0.01, 0.5, 0.5, 1.0, 0.01]
-    Sequence of 5x [happy, liberal, balanced]: [1.0, 0.01, 0.01, 1.0, 0.5, 0.5]
 '''
-def get_error(parameters=None, plot=False):
-    #[openness, adaptability, conscientiousness, system_justification]
-    a1Traits = [0.9, 0.9, 0.1, 0.1]
-    a2Traits = [0.1, 0.1, 0.9, 0.9]
-    a3Traits = [0.5, 0.5, 0.5, 0.5]
+def get_error(parameters=None):
+    mood = 0.5
 
-    # Initial states of the agent (pp_cons, pp_lib, cs_cons, cs_lib, mood)
-    a1States = [0.1, 0.8, 0.2, 0.7, 0.5]
-    a2States = [0.75, 0.05, 0.8, 0.1, 0.5]
-    a3States = [0.1, 0.1, 0.15, 0.2, 0.5]
+    # Get the traits for the agents
+    validation_f = 'validation/'
+    
+    agent1 = pd.read_csv(validation_f+'agent_1.csv')
+    agent2 = pd.read_csv(validation_f+'agent_2.csv')
+    agent3 = pd.read_csv(validation_f+'agent_3.csv')
 
-    data_f = "./data"
-    msg_sequence = np.genfromtxt(data_f+'/messages.csv', delimiter=',', skip_header=1)
-    #print msg_sequence
-    sum_err = 0
+    a1_dict = agent1.to_dict()
+    a2_dict = agent2.to_dict()
+    a3_dict = agent3.to_dict()
+
+    #[pt_con, nf_ko, nf_ent, nf_is, nf_si, nf_se, mood]
+    a1_traits = [a1_dict['nf_ko'][0], a1_dict['nf_ent'][0], a1_dict['nf_is'][0], 
+                 a1_dict['nf_si'][0], a1_dict['nf_se'][0], a1_dict['pt_con'][0], mood]
+    a2_traits = [a2_dict['nf_ko'][0], a2_dict['nf_ent'][0], a2_dict['nf_is'][0], 
+                 a2_dict['nf_si'][0], a2_dict['nf_se'][0], a2_dict['pt_con'][0], mood]
+    a3_traits = [a3_dict['nf_ko'][0], a3_dict['nf_ent'][0], a3_dict['nf_is'][0], 
+                 a3_dict['nf_si'][0], a3_dict['nf_se'][0], a3_dict['pt_con'][0], mood]
+    
+    
+    # Get validation data set
+    data_a1 = pd.read_csv(validation_f+'validation_agent_1.csv')
+    data_a2 = pd.read_csv(validation_f+'validation_agent_2.csv')
+    data_a3 = pd.read_csv(validation_f+'validation_agent_3.csv')
+    
+    messages1 = data_a1[['msg_cat_per', 'msg_cat_ent', 'msg_cat_new', 'msg_cat_edu', 
+                        'msg_cat_con', 'msg_rel', 'msg_qua', 'msg_sen', 
+                        'msg_sal', 'msg_med', 'msg_com', 'msg_que']]
+    messages2 = data_a2[['msg_cat_per', 'msg_cat_ent', 'msg_cat_new', 'msg_cat_edu', 
+                        'msg_cat_con', 'msg_rel', 'msg_qua', 'msg_sen', 
+                        'msg_sal', 'msg_med', 'msg_com', 'msg_que']]
+    messages3 = data_a3[['msg_cat_per', 'msg_cat_ent', 'msg_cat_new', 'msg_cat_edu', 
+                        'msg_cat_con', 'msg_rel', 'msg_qua', 'msg_sen', 
+                        'msg_sal', 'msg_med', 'msg_com', 'msg_que']]
+    
+    reactions1 = data_a1[['like', 'comment', 'share']]
+    reactions2 = data_a2[['like', 'comment', 'share']]
+    reactions3 = data_a3[['like', 'comment', 'share']]
+
+    # Fitting the empirical data for a1 (reactions)
+    reactions1 = reactions1.rename(columns=lambda x: x.strip())
+    reactions1['time'] = (reactions1.index+1)*20-1
+    reactions1.index = reactions1['time']
+    reactions1 = reactions1[['like', 'comment', 'share']]
+
+    # Fitting the empirical data for a2 (reactions)
+    reactions2 = reactions2.rename(columns=lambda x: x.strip())
+    reactions2['time'] = (reactions2.index+1)*20-1
+    reactions2.index = reactions2['time']
+    reactions2 = reactions2[['like', 'comment', 'share']]
+
+    # Fitting the empirical data for a3 (reactions)
+    reactions3 = reactions3.rename(columns=lambda x: x.strip())
+    reactions3['time'] = (reactions3.index+1)*20-1
+    reactions3.index = reactions3['time']
+    reactions3 = reactions3[['like', 'comment', 'share']]
+
+    # Simulation
+    # Agent 
+    '''
+    df1, parameters = model.run_message_sequence(messages1.values, a1_traits,
+                                                 alogistic_parameters=parameters, title='nb1')
+    df2, parameters = model.run_message_sequence(messages2.values, a2_traits,
+                                                 alogistic_parameters=parameters, title='nb2')
+    df3, parameters = model.run_message_sequence(messages3.values, a3_traits,
+                                                 alogistic_parameters=parameters, title='nb3')
+    '''
+
+    '''
+    https://stackoverflow.com/questions/37873501/get-return-value-for-multi-processing-functions-in-python
+    '''
+    with Pool() as pool:
+        result1 = pool.apply_async(model.run_message_sequence, (messages1.values, a1_traits,
+                                                 parameters, 'nb1'))
+        result2 = pool.apply_async(model.run_message_sequence, (messages2.values, a2_traits,
+                                                 parameters, 'nb2'))
+        result3 = pool.apply_async(model.run_message_sequence, (messages3.values, a3_traits,
+                                                 parameters, 'nb3'))
+        df1, df2, df3 = result1.get()[0], result2.get()[0], result3.get()[0]
+        parameters = result1.get()[1]
 
 
-    # Empirical Data
-    empdf1 = pd.read_csv('./data/agent1.csv')
-    empdf1 = empdf1.rename(columns=lambda x: x.strip())
-    empdf1['time'] = (empdf1.index+1)*20-1
-    empdf1.index = empdf1['time']
-    empdf1 = empdf1[['pp_cons', 'pp_lib', 'cs_cons', 'cs_lib', 'mood', 'fs_change']]
-
-    empdf2 = pd.read_csv('./data/agent2.csv')
-    empdf2 = empdf2.rename(columns=lambda x: x.strip())
-    empdf2['time'] = (empdf2.index+1)*20-1
-    empdf2.index = empdf2['time']
-    empdf2 = empdf2[['pp_cons', 'pp_lib', 'cs_cons', 'cs_lib', 'mood', 'fs_change']]
-
-    empdf3 = pd.read_csv('./data/agent3.csv')
-    empdf3 = empdf3.rename(columns=lambda x: x.strip())
-    empdf3['time'] = (empdf3.index+1)*20-1
-    empdf3.index = empdf3['time']
-    empdf3 = empdf3[['pp_cons', 'pp_lib', 'cs_cons', 'cs_lib', 'mood', 'fs_change']]
-
-
-    # Get results for each agent
-    df1, parameters = model.run_message_sequence(msg_sequence, a1Traits, a1States, alogistic_parameters=parameters, title='1')
     df1.index = df1.index.astype(int)
-    dfpoints1 = df1[['pp_cons', 'pp_lib', 'cs_cons', 'cs_lib', 'mood', 'fs_change']].iloc[empdf1.index]
+    dfpoints1 = df1[['like', 'share', 'comment']].iloc[reactions1.index]
+    error1 = ((dfpoints1-reactions1)**2).sum().sum()
 
-    df2, parameters = model.run_message_sequence(msg_sequence, a2Traits, a2States, alogistic_parameters=parameters, title='2')
     df2.index = df2.index.astype(int)
-    dfpoints2 = df2[['pp_cons', 'pp_lib', 'cs_cons', 'cs_lib', 'mood', 'fs_change']].iloc[empdf2.index]
-
-
-    df3, parameters = model.run_message_sequence(msg_sequence, a3Traits, a3States, alogistic_parameters=parameters, title='3')
+    dfpoints2 = df2[['like', 'share', 'comment']].iloc[reactions2.index]
+    error2 = ((dfpoints2-reactions2)**2).sum().sum()
+    
     df3.index = df3.index.astype(int)
-    dfpoints3 = df3[['pp_cons', 'pp_lib', 'cs_cons', 'cs_lib', 'mood', 'fs_change']].iloc[empdf3.index]
-
-    if plot:
-        df1[['pp_cons', 'pp_lib', 'mood', 'cs_cons', 'cs_lib']].plot(figsize=((14,8)))
-        plt.savefig('output_a1.png')
-        plt.clf()
-        # df1[['es_r', 'fs_change']].plot(figsize=((14,8)))
-        df1[['fs_change', 'fc_cons', 'fc_lib']].plot(figsize=((14,8)))
-        plt.savefig('output_a1e.png')
-        plt.clf()
-
-        df2[['pp_cons', 'pp_lib', 'mood', 'cs_cons', 'cs_lib']].plot(figsize=((14,6)))
-        plt.savefig('output_a2.png')
-        plt.clf()
-        df2[['fs_change', 'fc_cons', 'fc_lib']].plot(figsize=((14,8)))
-        plt.savefig('output_a2e.png')
-        plt.clf()
-        
-        df3[['pp_cons', 'pp_lib', 'mood', 'cs_cons', 'cs_lib']].plot(figsize=((14,6)))
-        plt.savefig('output_a3.png')
-        plt.clf()
-        df3[['fs_change']].plot(figsize=((14,8)))
-        plt.savefig('output_a3e.png')
-        plt.clf()
+    dfpoints3 = df3[['like', 'share', 'comment']].iloc[reactions3.index]
+    error3 = ((dfpoints3-reactions3)**2).sum().sum()
 
     #Calculate error
-    sum_err = sum_err + \
-        ((dfpoints1-empdf1)**2).sum().sum()+ ((dfpoints2-empdf2)**2).sum().sum() + ((dfpoints3-empdf3)**2).sum().sum()
+    sum_err = error1+error2+error3
 
-        
-    '''
-    ((dfpoints1[['pp_cons', 'pp_lib', 'cs_cons', 'cs_lib']]-empdf1[['pp_cons', 'pp_lib', 'cs_cons', 'cs_lib']])**2).sum().sum()*1000 + \
-        ((dfpoints1[['mood', 'fs_change']]-empdf1[['mood', 'fs_change']])**2).sum().sum() #+ \
-
-    ((dfpoints2[['pp_cons', 'pp_lib', 'cs_cons', 'cs_lib']]-empdf2[['pp_cons', 'pp_lib', 'cs_cons', 'cs_lib']])**2).sum().sum()*100 + \
-    ((dfpoints2[['mood', 'fs_change']]-empdf2[['mood', 'fs_change']])**2).sum().sum() + \
-    ((dfpoints3[['pp_cons', 'pp_lib', 'cs_cons', 'cs_lib']]-empdf3[['pp_cons', 'pp_lib', 'cs_cons', 'cs_lib']])**2).sum().sum()*100 + \
-    ((dfpoints3[['mood', 'fs_change']]-empdf3[['mood', 'fs_change']])**2).sum().sum() 
-    '''
-
-        # ((dfpoints2-empdf2)**2).sum().sum() + ((dfpoints3-empdf3)**2).sum().sum()
-    # return sum_err, parameters, df1, empdf1, df2, empdf2, df3, empdf3
-    return sum_err, parameters, df1, empdf1, df1, empdf1, df1, empdf1
+    # the data frames are important for ploting later.
+    return sum_err, parameters, dfpoints1, reactions1, dfpoints2, reactions2, dfpoints3, reactions3
 
 
 
 def plot_results(parameters, cost_hist, parameters_hist):
 
     sum_err, parameters, df1, empdf1, df2, empdf2, df3, empdf3 = get_error(parameters=parameters, plot=True)
-    '''
-    i = 0
-    new_dict = {}
-    for item in parameters_hist:
-        for parameter in item:
-            if parameter[0] not in new_dict.keys():
-                new_dict[parameter[0]] = []
-            else:
-                new_dict[parameter[0]].append(parameter[1])
-        i += 1
-
-    df = pd.DataFrame(new_dict)
-    df.columns.names = ['source', 'target']
-    '''
 
     fig = plt.figure(figsize=((12, 6)))
 
@@ -284,7 +208,7 @@ def parameter_tuning(parameters=None):
     parameters_hist = list([])
 
     # Actual cost
-    old_cost, initial_parameters, df, empdf = get_error()
+    old_cost, initial_parameters, _, _, _, _, _, _ = get_error()
     cost_hist.append(old_cost)
     parameters_hist.append(initial_parameters)
 
@@ -295,13 +219,13 @@ def parameter_tuning(parameters=None):
     parameters = initial_parameters
 
     while T > T_min:
-        print 'Temp: ', T
+        print('Temp: ', T)
         i = 1
         # original = 100
-        while i <= 100:
+        while i <= 10:
             
             new_parameters = neighbor(parameters.copy())
-            new_cost, new_parameters, df, empdf = get_error(new_parameters)
+            new_cost, new_parameters, _, _, _, _, _, _  = get_error(new_parameters)
             
             if new_cost < old_cost:
                 parameters = new_parameters.copy()
@@ -318,10 +242,10 @@ def parameter_tuning(parameters=None):
                     cost_hist.append(old_cost)
             i += 1
         pprint(parameters_hist[-1])
-        print cost_hist[-1]
+        print(cost_hist[-1])
         T = T*alpha
 
-    plot_results(parameters, cost_hist, parameters_hist)
+    # plot_results(parameters, cost_hist, parameters_hist)
 
     return parameters, cost_hist, parameters_hist
 
