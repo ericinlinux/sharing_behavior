@@ -216,14 +216,15 @@ def parameter_tuning(parameters=None):
     T = 1.0
     T_min = 0.01
     # original = 0.9
-    alpha = 0.8
+    alpha = 0.99
+    num_neighbors = 500
     parameters = initial_parameters
 
     while T > T_min:
         print('Temp: ', T)
         i = 1
         # original = 100
-        while i <= 10:
+        while i <= num_neighbors:
             
             new_parameters = neighbor(parameters.copy())
             new_cost, new_parameters, _, _, _, _, _, _  = get_error(new_parameters)
