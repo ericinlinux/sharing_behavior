@@ -213,10 +213,10 @@ def parameter_tuning(parameters=None):
     cost_hist.append(old_cost)
     parameters_hist.append(initial_parameters)
 
-    T = 1.0
+    T = 2.0
     T_min = 0.01
     # original = 0.9
-    alpha = 0.99
+    alpha = 0.5
     num_neighbors = 500
     parameters = initial_parameters
 
