@@ -12,14 +12,16 @@ from pprint import pprint
 def neighbor(json_parameters):
     # inf_tau = -0.05
     # sup_tau = 0.05
-    inf_tau = -0.05
-    sup_tau = 0.05
-    minn = 0.00001
-    maxn_tau = 1
+    inf_tau = -0.2
+    sup_tau = 0.2
+    minn = 0.0001
+    maxn_tau = 10
+
+    maxn_mood = 1
     
-    inf_sigma = -0.1
-    sup_sigma = 0.1
-    maxn_sigma = 10
+    inf_sigma = -0.5
+    sup_sigma = 0.5
+    maxn_sigma = 20
     
     for key in json_parameters.keys():
         if key == 'mood_speed':
@@ -27,7 +29,7 @@ def neighbor(json_parameters):
             inf_speed = -0.1
             sup_speed = 0.1
             new_mood_speed = mood_speed + ((sup_speed - inf_speed) * random() + inf_speed)
-            new_mood_speed = minn if new_mood_speed < minn else maxn_tau if new_mood_speed > maxn_tau else new_mood_speed
+            new_mood_speed = minn if new_mood_speed < minn else maxn_mood if new_mood_speed > maxn_mood else new_mood_speed
             json_parameters[key] = new_mood_speed
         else:
             tau = json_parameters[key][0]
@@ -47,8 +49,10 @@ def neighbor(json_parameters):
 Function to define acceptance probability values for SA
 '''
 def acceptance_probability(old_cost, new_cost, T):
-    delta = new_cost-old_cost
+    delta = (new_cost-old_cost)
     probability = np.exp(-delta/T)
+    #print(-delta/T)
+    # probability = 1/(1+np.exp(delta/T))
     return probability
 
 
@@ -213,11 +217,11 @@ def parameter_tuning(parameters=None):
     cost_hist.append(old_cost)
     parameters_hist.append(initial_parameters)
 
-    T = 2.0
+    T = 1.0
     T_min = 0.01
     # original = 0.9
-    alpha = 0.5
-    num_neighbors = 500
+    alpha = 0.9
+    num_neighbors = 100
     parameters = initial_parameters
 
     while T > T_min:
@@ -227,17 +231,20 @@ def parameter_tuning(parameters=None):
         while i <= num_neighbors:
             
             new_parameters = neighbor(parameters.copy())
-            new_cost, new_parameters, _, _, _, _, _, _  = get_error(new_parameters)
+            new_cost, new_parameters, _, _, _, _, _, _  = get_error(new_parameters.copy())
             
             if new_cost < old_cost:
+                print('Lower!')
                 parameters = new_parameters.copy()
                 parameters_hist.append(parameters.copy())
                 old_cost = new_cost
                 cost_hist.append(old_cost)
             else:
                 ap = acceptance_probability(old_cost, new_cost, T)
+                #print(ap)
                 if ap > random():
-                    #print 'accepted!'
+                    #print('\n', new_parameters, '\n', new_cost, '\n')
+                    print('accepted!')
                     parameters = new_parameters.copy()
                     parameters_hist.append(parameters.copy())
                     old_cost = new_cost

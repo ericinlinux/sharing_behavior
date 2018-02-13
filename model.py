@@ -10,6 +10,7 @@ import pandas as pd
 import math
 import json
 import sys
+from random import random
 
 
 def generate_graph(weightList=None):
@@ -116,7 +117,25 @@ def run_message(message=None, traits=None, previous_status_dict=None,
         except:
             print('Couldn\'t read the alogistic parameters! Check the \'alogistic.json\' file!')
             sys.exit()
-
+    elif alogistic_parameters == 'random':
+        alogistic_parameters = {
+                     "srs_sal": [random()*10, random()*20],
+                     "arousal": [0.45, random()*20],
+                     "attention_1": [2.23, random()*20],
+                     "attention_2": [0.23, random()*20],
+                     "mood": [5.3, random()*20],
+                     "ff_ko": [1.75, random()*20],
+                     "ff_ent": [1.43, random()*20],
+                     "ff_si": [1.12, random()*20],
+                     "ff_is": [2.04, random()*20],
+                     "ff_se": [2.45, random()*20],
+                     "satisfaction": [2.1, random()*20],
+                     "dissatisfaction" : [0.2,random()*20],
+                     "prep_like" : [2.8,random()*20],
+                     "prep_comm": [3.5,random()*20],
+                     "prep_share" : [2.1, random()*20],
+                     "mood_speed": random()
+                    }
     graph, outWeightList = generate_graph(weightList)
 
     rng = np.arange(0.0, timesteps*delta_t, delta_t)
@@ -285,9 +304,12 @@ def run_message_sequence(message_seq=None, traits=None, alogistic_parameters=Non
 
     for message in message_seq:
         if psd is None:
-            g, w, set_traits, parameters, psd = run_message(message=message, weightList=weightList, traits=traits, alogistic_parameters=alogistic_parameters, speed_factor=speed_factor, delta_t=delta_t, timesteps=timesteps)
+            g, w, set_traits, parameters, psd = run_message(message=message, weightList=weightList, 
+                traits=traits, alogistic_parameters=alogistic_parameters, speed_factor=speed_factor, delta_t=delta_t, timesteps=timesteps)
         else:
-            g, w, set_traits, parameters, psd = run_message(message=message, weightList=weightList, traits=list(set_traits.values()), previous_status_dict=psd, alogistic_parameters=alogistic_parameters, speed_factor=speed_factor, delta_t=delta_t, timesteps=timesteps)
+            g, w, set_traits, parameters, psd = run_message(message=message, weightList=weightList,
+                traits=list(set_traits.values()), previous_status_dict=psd, alogistic_parameters=alogistic_parameters,
+                speed_factor=speed_factor, delta_t=delta_t, timesteps=timesteps)
 
         status_results = {}
         for node in g.nodes():
