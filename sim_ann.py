@@ -221,7 +221,7 @@ def parameter_tuning(parameters=None):
     T_min = 0.01
     # original = 0.9
     alpha = 0.9
-    num_neighbors = 100
+    num_neighbors = 10000
     parameters = initial_parameters
 
     while T > T_min:
