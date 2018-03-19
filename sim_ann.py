@@ -12,8 +12,8 @@ from pprint import pprint
 def neighbor(json_parameters):
     # inf_tau = -0.05
     # sup_tau = 0.05
-    inf_tau = -0.2
-    sup_tau = 0.2
+    inf_tau = -0.1
+    sup_tau = 0.1
     minn = 0.0001
     maxn_tau = 10
 
@@ -21,13 +21,13 @@ def neighbor(json_parameters):
     
     inf_sigma = -0.5
     sup_sigma = 0.5
-    maxn_sigma = 20
+    maxn_sigma = 30
     
     for key in json_parameters.keys():
         if key == 'mood_speed':
             mood_speed = json_parameters[key]
-            inf_speed = -0.1
-            sup_speed = 0.1
+            inf_speed = -0.01
+            sup_speed = 0.01
             new_mood_speed = mood_speed + ((sup_speed - inf_speed) * random() + inf_speed)
             new_mood_speed = minn if new_mood_speed < minn else maxn_mood if new_mood_speed > maxn_mood else new_mood_speed
             json_parameters[key] = new_mood_speed
@@ -162,6 +162,7 @@ def get_error(parameters=None):
     sum_err = error1+error2+error3
 
     # the data frames are important for ploting later.
+    #return sum_err, parameters, dfpoints1, reactions1, dfpoints2, reactions2, dfpoints3, reactions3, df1, df2, df3
     return sum_err, parameters, dfpoints1, reactions1, dfpoints2, reactions2, dfpoints3, reactions3
 
 
@@ -220,8 +221,8 @@ def parameter_tuning(parameters=None):
     T = 1.0
     T_min = 0.01
     # original = 0.9
-    alpha = 0.9
-    num_neighbors = 10000
+    alpha = 0.5
+    num_neighbors = 10
     parameters = initial_parameters
 
     while T > T_min:
