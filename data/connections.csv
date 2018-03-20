@@ -35,7 +35,6 @@ srs_sen, arousal, 1
 srs_sal, attention_1, 1
 srs_med, attention_1, 1
 srs_com, attention_2, 1
-srs_com, prep_comm, 1
 srs_que, prep_comm, 1
 arousal, prep_share, 1
 arousal, prep_like, 1
