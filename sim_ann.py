@@ -31,6 +31,8 @@ def neighbor(json_parameters):
             new_mood_speed = mood_speed + ((sup_speed - inf_speed) * random() + inf_speed)
             new_mood_speed = minn if new_mood_speed < minn else maxn_mood if new_mood_speed > maxn_mood else new_mood_speed
             json_parameters[key] = new_mood_speed
+        elif key == 'like' or key == 'comment' or key == 'share':
+            continue
         else:
             tau = json_parameters[key][0]
             new_tau = tau + ((sup_tau - inf_tau) * random() + inf_tau)
@@ -146,24 +148,28 @@ def get_error(parameters=None):
         parameters = result1.get()[1]
 
 
+    factor_diff = 3
     df1.index = df1.index.astype(int)
     dfpoints1 = df1[['mood', 'like', 'share', 'comment']].iloc[reactions1.index]
-    error1 = ((dfpoints1-reactions1)**2).sum().sum()
+    #error1 = ((dfpoints1-reactions1)**2).sum().sum()
+    error1 = (((dfpoints1[['like', 'share', 'comment']] - reactions1[['like', 'share', 'comment']])*factor_diff/factor_diff)**2).sum().sum() + ((dfpoints1['mood'] - (reactions1['mood'])*factor_diff)**2).sum().sum()
 
     df2.index = df2.index.astype(int)
     dfpoints2 = df2[['mood', 'like', 'share', 'comment']].iloc[reactions2.index]
-    error2 = ((dfpoints2-reactions2)**2).sum().sum()
+    #error2 = ((dfpoints2-reactions2)**2).sum().sum()
+    error2 = (((dfpoints2[['like', 'share', 'comment']] - reactions2[['like', 'share', 'comment']])*factor_diff/factor_diff)**2).sum().sum() + ((dfpoints2['mood'] - (reactions2['mood'])*factor_diff)**2).sum().sum()
     
     df3.index = df3.index.astype(int)
     dfpoints3 = df3[['mood', 'like', 'share', 'comment']].iloc[reactions3.index]
-    error3 = ((dfpoints3-reactions3)**2).sum().sum()
+    #error3 = ((dfpoints3-reactions3)**2).sum().sum()
+    error3 = (((dfpoints3[['like', 'share', 'comment']] - reactions3[['like', 'share', 'comment']])*factor_diff/factor_diff)**2).sum().sum() + ((dfpoints3['mood'] - (reactions3['mood'])*factor_diff)**2).sum().sum()
 
     #Calculate error
     sum_err = error1+error2+error3
 
     # the data frames are important for ploting later.
-    #return sum_err, parameters, dfpoints1, reactions1, dfpoints2, reactions2, dfpoints3, reactions3, df1, df2, df3
-    return sum_err, parameters, dfpoints1, reactions1, dfpoints2, reactions2, dfpoints3, reactions3
+    return sum_err, parameters, dfpoints1, reactions1, dfpoints2, reactions2, dfpoints3, reactions3, df1, df2, df3
+    #return sum_err, parameters, dfpoints1, reactions1, dfpoints2, reactions2, dfpoints3, reactions3
 
 
 
@@ -214,15 +220,15 @@ def parameter_tuning(parameters=None):
     parameters_hist = list([])
 
     # Actual cost
-    old_cost, initial_parameters, _, _, _, _, _, _ = get_error()
+    old_cost, initial_parameters, _, _, _, _, _, _, _, _, _ = get_error()
     cost_hist.append(old_cost)
     parameters_hist.append(initial_parameters)
 
     T = 1.0
     T_min = 0.01
     # original = 0.9
-    alpha = 0.5
-    num_neighbors = 10
+    alpha = 0.7
+    num_neighbors = 30
     parameters = initial_parameters
 
     while T > T_min:
@@ -232,7 +238,7 @@ def parameter_tuning(parameters=None):
         while i <= num_neighbors:
             
             new_parameters = neighbor(parameters.copy())
-            new_cost, new_parameters, _, _, _, _, _, _  = get_error(new_parameters.copy())
+            new_cost, new_parameters, _, _, _, _, _, _, _, _, _  = get_error(new_parameters.copy())
             
             if new_cost < old_cost:
                 print('Lower!')
