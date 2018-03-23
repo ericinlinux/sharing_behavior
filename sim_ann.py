@@ -12,27 +12,27 @@ from pprint import pprint
 def neighbor(json_parameters):
     # inf_tau = -0.05
     # sup_tau = 0.05
-    inf_tau = -0.1
-    sup_tau = 0.1
+    inf_tau = -0.01
+    sup_tau = 0.01
     minn = 0.0001
     maxn_tau = 10
 
     maxn_mood = 1
     
-    inf_sigma = -0.5
-    sup_sigma = 0.5
-    maxn_sigma = 30
+    inf_sigma = -0.05
+    sup_sigma = 0.05
+    maxn_sigma = 200
     
     for key in json_parameters.keys():
         if key == 'mood_speed':
             mood_speed = json_parameters[key]
-            inf_speed = -0.01
-            sup_speed = 0.01
+            inf_speed = -0.001
+            sup_speed = 0.001
             new_mood_speed = mood_speed + ((sup_speed - inf_speed) * random() + inf_speed)
             new_mood_speed = minn if new_mood_speed < minn else maxn_mood if new_mood_speed > maxn_mood else new_mood_speed
             json_parameters[key] = new_mood_speed
-        elif key == 'like' or key == 'comment' or key == 'share':
-            continue
+        #elif key == 'like' or key == 'comment' or key == 'share':
+        #    continue
         else:
             tau = json_parameters[key][0]
             new_tau = tau + ((sup_tau - inf_tau) * random() + inf_tau)
