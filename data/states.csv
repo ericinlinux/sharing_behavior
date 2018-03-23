@@ -50,6 +50,7 @@ ff_si, alogistic
 ff_is, alogistic
 ff_se, alogistic
 satisfaction, alogistic
+prep_gen, alogistic
 prep_like, alogistic
 prep_comm, alogistic
 prep_share, alogistic
