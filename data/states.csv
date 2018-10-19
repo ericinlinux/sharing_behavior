@@ -40,7 +40,7 @@ srs_sal, alogistic
 srs_med, id
 srs_com, id
 srs_que, id
-arousal, alogistic
+arousal, id
 attention_1, alogistic
 attention_2, alogistic
 mood, alogistic
@@ -57,6 +57,6 @@ prep_share, alogistic
 ssr_pe_l, id
 ssr_pe_c, id
 ssr_pe_s, id
-like, alogistic
-comment, alogistic
-share, alogistic
+like, id
+comment, id
+share, id
