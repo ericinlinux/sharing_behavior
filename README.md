@@ -1,10 +1,10 @@
 # Cognitive model for sharing behavior
 
-This code is related to the article 'Sharing behavior in web media: a cognitive model proposal'.
+This code is related to the article 'A Computational Cognitive Model for Interaction Behavior on Facebook'.
 
-The code is a simulation of the model provided in the article. 
+The code is a simulation of the model provided in the article. If you have questions, please contact *eric at dcc.ufla.br*.
 
-![model](final_model.png)
+![model](model_10_16_2018.png)
 
 ## Structure of the code
 

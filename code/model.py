@@ -1,7 +1,7 @@
 """
 Generate graph and run model for the sharing behavior on web media
 Creator: Eric Araujo
-Date: 2017-12-20
+Date: 2018-10-19
 """
 
 import numpy as np
@@ -18,8 +18,8 @@ def generate_graph(weightList=None):
     Inputs: weightList with ((source,target),weight) values
     """
     try:
-        edges_f = open('data/connections.csv')
-        nodes_f = open('data/states.csv')
+        edges_f = open('input/connections.csv')
+        nodes_f = open('input/states.csv')
     except:
         print("Files absent: connections.csv and states.csv not included in the data folder!")
         sys.exit(0)
@@ -112,7 +112,7 @@ def run_message(message=None, traits=None, previous_status_dict=None,
     # Read the json file with the alogistic parameters
     if alogistic_parameters is None:
         try:
-            with open('data/alogistic.json') as data_file:    
+            with open('input/alogistic.json') as data_file:    
                 alogistic_parameters = json.load(data_file)
         except:
             print('Couldn\'t read the alogistic parameters! Check the \'alogistic.json\' file!')

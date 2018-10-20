@@ -27,6 +27,7 @@ srs_cat_ent, ff_ent, 1
 srs_cat_new, ff_is, 1
 srs_cat_edu, ff_is, 1
 srs_cat_con, ff_si, 1
+srs_cat_con, prep_comm, 1
 srs_rel, attention_1, 1
 srs_med, attention_1, 1
 srs_sal, attention_1, 1
@@ -36,7 +37,7 @@ srs_com, prep_comm, 1
 srs_com, attention_2, 1
 srs_sen, arousal, 1
 srs_que, prep_comm, 1
-arousal, prep_share, 1
+arousal, prep_gen, 1
 nf_se, prep_gen, 1
 nf_se, ff_se, 1
 nf_ko , ff_ko, 1
@@ -50,7 +51,9 @@ ff_si, satisfaction, 1
 ff_se, mood, 1
 attention_1, prep_gen, 1
 attention_2, prep_gen, 1
+attention_2, attention_1, -1
 mood, mood, 1
+mood, attention_1, 1
 mood, attention_2, -1
 satisfaction, prep_gen, 1
 satisfaction, mood, 1
