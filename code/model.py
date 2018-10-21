@@ -66,6 +66,8 @@ def generate_graph(weightList=None):
             graph.add_edge(source, target, weight=float(w))
             outWeightList.append(((source, target), float(w)))
 
+    print("Graph generated successfully. It contains {} nodes and {} edges.".format(
+        graph.number_of_nodes(),graph.number_of_edges()))
     return graph, outWeightList
 
 

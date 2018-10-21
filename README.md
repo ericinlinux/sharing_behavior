@@ -4,7 +4,7 @@ This code is related to the article 'A Computational Cognitive Model for Interac
 
 The code is a simulation of the model provided in the article. If you have questions, please contact *eric at dcc.ufla.br*.
 
-![model](model_10_16_2018.png)
+![model](model/model_design.png)
 
 ## Structure of the code
 
