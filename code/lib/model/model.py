@@ -1,7 +1,8 @@
 """
 Generate graph and run model for the sharing behavior on web media
 Creator: Eric Araujo
-Date: 2018-10-19
+Date of Creation: 2018-10-19
+Last update: 2018-11-14
 """
 
 import numpy as np
@@ -11,6 +12,13 @@ import math
 import json
 import sys
 from random import random
+
+
+def get_agents(json_string = "../data/agents/agents.json"):
+    # Load agents
+    with open(json_string, 'r') as f:
+        agents = json.load(f)
+    return agents
 
 
 def generate_graph(weightList=None):

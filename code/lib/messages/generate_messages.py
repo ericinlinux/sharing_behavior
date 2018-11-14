@@ -43,6 +43,6 @@ def sequence_messages(num_repeat=10, num_loops=5, filename='../data/messages/mes
     # Export dataframe to .csv
     messages_df.to_csv(filename, index=False)
 
-
+    return messages_df
 
 
