@@ -42,7 +42,7 @@ def run_message(message=None, traits=None, previous_status_dict=None,
 ```
 **Inputs:**
 
-* **message:** list with 12 positions containing (in the sequence) the information for ['msg_cat_per', 'msg_cat_ent', 'msg_cat_new', 'msg_cat_edu', 'msg_cat_con', 'msg_rel', 'msg_qua', 'msg_sen', 'msg_sal', 'msg_med', 'msg_com', 'msg_que']
+* **message:** list with 12 positions containing (in the sequence) the information for ['cat_per', 'cat_ent', 'cat_new', 'cat_edu', 'cat_con', 'msg_rel', 'msg_qua', 'msg_sen', 'msg_sal', 'msg_med', 'msg_com', 'msg_que']
 * **traits:** list with 7 positions containing the ['nk_ko', 'nf_ent', 'nf_is', nf_si', 'nf_se', 'pt_cons', 'mood']
 * **previous_status_dict:** dictionary with the value for the states on the previous time step.
 * **alogistic_parameters:** if None, it is taken from the file 'data/alogistic.json'. Contains a dictionary with the values for steepness and threshold for the nodes with alogistic aggregation functions. It also contains the *speed factor for mood*.
@@ -80,14 +80,26 @@ def run_message_sequence(message_seq=None, traits=None, alogistic_parameters=Non
 
 ### The parameter tuning
 
-This part of the code is found in the file sim_ann.py. It contains the functions to run a simulated annealing algorithm to find the best parameters for the code. In our model we are tuning the parameters for the logistic function and the speed factor for the mood.
+In development...
 
+## Message characteristics
 
+The messages received by the agent present the following characteristics:
+
+* **cat_per:** post belongs to category Personal
+* **cat_ent:** post belongs to category Entertainment
+* **cat_new:** post belongs to category News
+* **cat_edu:** post belongs to category Education
+* **cat_con:** post belongs to category Conversational
+* **msg_rel:** the relation to the source - [0,1]
+* **msg_qua:** the overall quality of the post -  [0,1]
+* **msg_sen:** the sentiment of a message - [0,1]
+* **msg_sal:** the saliency of a post - [0,1]
+* **msg_med:** the presence of media in the post - 0, 0.5 or 1
+* **msg_com:** the complexity of the message - [0,1]
+* **msg_que:** the presence of a question in the post - 0 or 1
 
 ## Running the code
 
-To run the model, with the basic test, run the command in the terminal:
+In development...
 
-```
-python test_model.py
-```

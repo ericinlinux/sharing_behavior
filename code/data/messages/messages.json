@@ -1,0 +1,73 @@
+{
+
+    "fake_news": {
+                    "cat_per": 0,
+                    "cat_ent": 0,
+                    "cat_new": 1,
+                    "cat_edu": 0,
+                    "cat_con": 0,
+
+                    "msg_rel": 1,
+                    "msg_med": 0.5,
+                    "msg_qua": 0.5,
+                    "msg_com": 0,
+                    "msg_sen": 1,
+                    "msg_que": 0
+                },
+    "news": {
+                    "cat_per": 0,
+                    "cat_ent": 0,
+                    "cat_new": 1,
+                    "cat_edu": 0,
+                    "cat_con": 0,
+
+                    "msg_rel": 0,
+                    "msg_med": 0.5,
+                    "msg_qua": 1,
+                    "msg_com": 0.5,
+                    "msg_sen": 0.25,
+                    "msg_que": 1
+                },
+    "holidays_pics": {
+                    "cat_per": 1,
+                    "cat_ent": 0,
+                    "cat_new": 0,
+                    "cat_edu": 0,
+                    "cat_con": 0,
+
+                    "msg_rel": 1,
+                    "msg_med": 1,
+                    "msg_qua": 0,
+                    "msg_com": 0,
+                    "msg_sen": 1,
+                    "msg_que": 0
+                },
+    "online_course_ad": {
+                    "cat_per": 0,
+                    "cat_ent": 0,
+                    "cat_new": 0,
+                    "cat_edu": 1,
+                    "cat_con": 0,
+
+                    "msg_rel": 0,
+                    "msg_med": 1,
+                    "msg_qua": 1,
+                    "msg_com": 1,
+                    "msg_sen": 0.25,
+                    "msg_que": 0
+                },
+    "cats": {
+                    "cat_per": 0,
+                    "cat_ent": 1,
+                    "cat_new": 0,
+                    "cat_edu": 0,
+                    "cat_con": 0,
+
+                    "msg_rel": 1,
+                    "msg_med": 1,
+                    "msg_qua": 0.5,
+                    "msg_com": 0,
+                    "msg_sen": 1,
+                    "msg_que": 0
+                }
+}
