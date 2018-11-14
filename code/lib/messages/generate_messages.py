@@ -1,58 +1,47 @@
+# Generate messages for the model to run
+# Programmer: Eric Araujo
+# Date of Creation: 14/11/2018
+# Last update: 14/11/2018
+
+import os
+import sys
+import json
 import pandas as pd
-import numpy as np
-import random
-from random import randint
 
+def sequence_messages(num_repeat=10, num_loops=5, filename='../data/messages/messages.csv'):
+    """Save a csv file at filename folder containing a sequence of messages based on:
+    num_repeat: how many messages of the same type will be created in sequence.
+    num_loops: how many times the body of messages is going to be repeated.
 
-def get_messages_seq(features=['cat_per', 'cat_ent', 'cat_new', 'cat_edu', 'cat_con', 'msg_rel', 'msg_med', 'msg_sal', 'msg_qua', 'msg_com', 'msg_sen', 'msg_que']):
+    For example:
+    if num_repeat = 5, it means that each message (fake news, news, holidays pics, etc.) will have 5 sequential messages one after another. In total there will be 25 messages (5 types of message x 5 repeats).
+    The num_loops is about how many times the structure above is going to be replicated. So if we have num_loops=10, the 25 messages will be copied 10 times, generating 250 messages in total.
+    """
+    # Open JSON file with the information of the messages
+    json_string = "../data/messages/messages.json"
+    with open(json_string, 'r') as f:
+        messages = json.load(f)
+    
+    # Generate 10 messages of each
+    num_repeat = 10
 
-    #Creating an empty dataframe for the messages
-    messages = pd.DataFrame()
-    # Creating 200 messages
+    messages_df = pd.DataFrame()
+    messages_df = pd.concat(
+                    [messages_df, pd.DataFrame([messages['fake_news']]*num_repeat)], ignore_index=True)
+    messages_df = pd.concat(
+                    [messages_df, pd.DataFrame([messages['news']]*num_repeat)], ignore_index=True)
+    messages_df = pd.concat(
+                    [messages_df, pd.DataFrame([messages['holidays_pics']]*num_repeat)], ignore_index=True)
+    messages_df = pd.concat(
+                    [messages_df, pd.DataFrame([messages['online_course_ad']]*num_repeat)], ignore_index=True)
+    messages_df = pd.concat(
+                    [messages_df, pd.DataFrame([messages['cats']]*num_repeat)], ignore_index=True)
 
-    number_of_messages = 200
-
-    for i in range(number_of_messages):
-
-        #Random category
-        cat = randint(0, 4)
-        cat_list = [0, 0, 0, 0, 0]
-        cat_list[cat] = 1
-
-        #Random values between 0 and 1
-        values = list(np.random.uniform(low=0.05, high=1, size=5))
-
-        #Media (none, picture, video)
-        media = [0, 0.5, 1]
-        msg_media = randint(0,2)
-        values.append(media[msg_media])
-
-        #Question (Randomly let 20% of the posts contain a question)
-        msg_que = 0
-        percentage = randint(0,10)
-        if percentage > 8:
-            msg_que = 1
-        values.append(msg_que)
-
-        
-        #Create a list of al the vlaues
-        values = cat_list + values
-
-        #Create dictionary for features and values
-        message = {}
-        for i in range(len(features)):
-             message[features[i]] = values[i]
-
-        #Append to dataframe
-        messages = messages.append(message, ignore_index=True)
-
-
-    print(messages.head())
-
+    # Repeat the same sequence num_loops times
+    messages_df = pd.concat([messages_df]*num_loops, ignore_index=True)
 
     # Export dataframe to .csv
-    filename = 'data/messages.csv'
-    messages.to_csv(filename, index=False, index_label=False)
+    messages_df.to_csv(filename, index=False)
 
 
 
