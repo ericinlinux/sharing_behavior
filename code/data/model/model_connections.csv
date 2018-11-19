@@ -1,8 +1,8 @@
-msg_cat_per, ss_cat_per, 1
-msg_cat_ent, ss_cat_ent, 1
-msg_cat_new, ss_cat_new, 1
-msg_cat_edu, ss_cat_edu, 1
-msg_cat_con, ss_cat_con, 1
+cat_per, ss_cat_per, 1
+cat_ent, ss_cat_ent, 1
+cat_new, ss_cat_new, 1
+cat_edu, ss_cat_edu, 1
+cat_con, ss_cat_con, 1
 msg_rel, ss_rel, 1 
 msg_qua, ss_qua, 1
 msg_sen, ss_sen, 1
