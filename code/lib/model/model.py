@@ -2,16 +2,27 @@
 Generate graph and run model for the sharing behavior on web media
 Creator: Eric Araujo
 Date of Creation: 2018-10-19
-Last update: 2018-11-14
+Last update: 2018-11-19
 """
 
-import numpy as np
-import networkx as nx
-import pandas as pd
-import math
 import json
+import math
+import matplotlib.pyplot as plt
+import networkx as nx
+import numpy as np
+import pandas as pd
+from pprint import pprint
+
+# To include the files from the other folders.
+import os
 import sys
-from random import random
+module_path = os.path.abspath(os.path.join('../../'))
+if module_path not in sys.path:
+    sys.path.append(module_path)
+
+import lib.messages.generate_messages as gm
+
+#from random import random
 
 
 def get_agents(json_string = "../data/agents/agents.json"):
@@ -21,18 +32,20 @@ def get_agents(json_string = "../data/agents/agents.json"):
     return agents
 
 
-def generate_graph(weightList=None):
+def generate_graph(weightList=None, files_folder='../../data/model/'):
     """
     Inputs: weightList with ((source,target),weight) values
     """
     try:
-        edges_f = open('input/connections.csv')
-        nodes_f = open('input/states.csv')
+        edges_f = open(files_folder + 'model_connections.csv')
+        nodes_f = open(files_folder+ 'model_states.csv')
     except:
-        print("Files absent: connections.csv and states.csv not included in the data folder!")
+        print("<FILES NOT FOUND>: model_connections.csv and model_states.csv not included in the data folder!")
         sys.exit(0)
+
     # Initiate graph as digraph (oriented graph)
     graph = nx.DiGraph()
+
     # Insert nodes
     for line in nodes_f:
         # Read each line and split to get nodes' name and function
@@ -41,16 +54,32 @@ def generate_graph(weightList=None):
         if node not in graph.nodes():
             # If node is output
             if node in ['like', 'share', 'comment']:
-                graph.add_node(node, attr_dict={'pos': 'output', 'func': func, 'status': {}})
+                graph.add_node(node)
+                graph.nodes()[node]['pos']='output'
+                graph.nodes()[node]['func']=func
+                graph.nodes()[node]['status'] = {}
+
             # If node is internal state
             elif func in ['id', 'alogistic']:
-                graph.add_node(node, attr_dict={'pos': 'inner', 'func': func, 'status': {}})
+                graph.add_node(node)
+                graph.nodes()[node]['pos'] = 'inner'
+                graph.nodes()[node]['func'] = func
+                graph.nodes()[node]['status'] = {}
+
             # If node is a trait of the participant
             elif func == 'trait':
-                graph.add_node(node, attr_dict={'pos': 'trait', 'func': func, 'status': {}})
+                graph.add_node(node)
+                graph.nodes()[node]['pos'] = 'trait'
+                graph.nodes()[node]['func'] = func
+                graph.nodes()[node]['status'] = {}
+
             # If node is an input
             elif func == 'input':
-                graph.add_node(node, attr_dict={'pos': 'input', 'func': func, 'status': {}})
+                graph.add_node(node)
+                graph.nodes()[node]['pos'] = 'input'
+                graph.nodes()[node]['func'] = func
+                graph.nodes()[node]['status'] = {}
+
             else:
                 print('Node %s does not match the requirements to create graph.', node)
                 sys.exit(0)
@@ -80,6 +109,10 @@ def generate_graph(weightList=None):
 
 
 def save_graph(graph):
+    """
+    Networkx draw function does not look nice.
+    Function needs improvements in the future.
+    """
     nx.draw_spring(graph, with_labels = True)
     plt.draw()
     #plt.show()
@@ -106,7 +139,8 @@ Outputs:    graph with the values for the states
 """
 def run_message(message=None, traits=None, previous_status_dict=None,
                 alogistic_parameters=None, speed_factor=0.5, delta_t=1,
-                timesteps=30, weightList=None):
+                timesteps=20, weightList=None):
+    
     # Checking the values for the function
     if message is None or len(message) != 12:
         print('Pass the values of the message correctly to the function!')
@@ -277,9 +311,9 @@ def run_message(message=None, traits=None, previous_status_dict=None,
                 graph.nodes[node]['status'][t] = graph.nodes[node]['status'][t - delta_t]
 
     # Previous status dictionary to keep track of what was done
-    psd = {}
+    previous_states_dict = {}
     for node in graph.nodes():
-        psd[node] = graph.nodes[node]['status'][t]
+        previous_states_dict[node] = graph.nodes[node]['status'][t]
 
     # all these states (apart from mood) should be the same over the simulation
     set_traits = {"nf_ko": graph.nodes['nf_ko']['status'][t],
@@ -290,7 +324,7 @@ def run_message(message=None, traits=None, previous_status_dict=None,
                   "pt_cons": graph.nodes['pt_cons']['status'][t],
                   "mood": graph.nodes['mood']['status'][t],
                  }
-    return graph, outWeightList, set_traits, alogistic_parameters, psd
+    return graph, outWeightList, set_traits, alogistic_parameters, previous_states_dict
 
 
 def run_message_sequence(message_seq=None, traits=None, alogistic_parameters=None, title='0'):
@@ -327,3 +361,7 @@ def run_message_sequence(message_seq=None, traits=None, alogistic_parameters=Non
         inputsDF = inputsDF.append(pd.DataFrame(status_results), ignore_index=True)
 
     return inputsDF, parameters
+
+if __name__ == "__main__":
+    g, w = generate_graph()
+    print("Test")

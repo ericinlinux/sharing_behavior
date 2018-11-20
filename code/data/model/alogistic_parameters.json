@@ -13,5 +13,6 @@
  "prep_like" : [2.8,2],
  "prep_comm": [3.5,2],
  "prep_share" : [2.1, 3],
- "mood_speed": 0.01
+ "mood_speed": 0.01,
+ "prep_gen": [2.5,2]
 }
