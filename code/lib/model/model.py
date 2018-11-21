@@ -2,7 +2,7 @@
 Generate graph and run model for the sharing behavior on web media
 Creator: Eric Araujo
 Date of Creation: 2018-10-19
-Last update: 2018-11-19
+Last update: 2018-11-20
 """
 
 import json
@@ -25,20 +25,21 @@ import lib.messages.generate_messages as gm
 #from random import random
 
 
-def get_agents(json_string = "../data/agents/agents.json"):
+def get_agents(root_folder = "../../"):
     # Load agents
-    with open(json_string, 'r') as f:
+    agents_file = root_folder + "data/agents/agents.json"
+    with open(agents_file, 'r') as f:
         agents = json.load(f)
     return agents
 
 
-def generate_graph(weightList=None, files_folder='../../data/model/'):
+def generate_graph(weightList=None, root_folder='../../'):
     """
     Inputs: weightList with ((source,target),weight) values
     """
     try:
-        edges_f = open(files_folder + 'model_connections.csv')
-        nodes_f = open(files_folder+ 'model_states.csv')
+        edges_f = open(root_folder + 'data/model/model_connections.csv')
+        nodes_f = open(root_folder+ 'data/model/model_states.csv')
     except:
         print("<FILES NOT FOUND>: model_connections.csv and model_states.csv not included in the data folder!")
         sys.exit(0)
@@ -137,26 +138,22 @@ Outputs:    graph with the values for the states
             list of weights used to run the model
             return graph, outWeightList, set_output, alogistic_parameters
 """
-def run_message(message=None, traits=None, previous_status_dict=None,
-                alogistic_parameters=None, speed_factor=0.5, delta_t=1,
-                timesteps=20, weightList=None):
-    
+def run_message(message=None, traits=None,
+                previous_status_dict=None, alogistic_parameters=None, 
+                speed_factor=0.5, delta_t=1, timesteps=20, 
+                weightList=None, root_folder="../../"):
+
     # Checking the values for the function
     if message is None or len(message) != 12:
         print('Pass the values of the message correctly to the function!')
         print(message)
         print(message.shape)
         sys.exit()
-    if traits is None or len(traits) != 7:
-        print('Pass the values of the traits correctly to the function!')
-        sys.exit()
-    #if previous_status_dict == None:
-    #   print 'Starting from zero!'
         
     # Read the json file with the alogistic parameters
     if alogistic_parameters is None:
         try:
-            with open('input/alogistic.json') as data_file:    
+            with open(root_folder+'data/model/alogistic_parameters.json') as data_file:    
                 alogistic_parameters = json.load(data_file)
         except:
             print('Couldn\'t read the alogistic parameters! Check the \'alogistic.json\' file!')
@@ -179,66 +176,67 @@ def run_message(message=None, traits=None, previous_status_dict=None,
                      "prep_share" : [2.1, random()*20],
                      "mood_speed": random()
                     }
-    graph, outWeightList = generate_graph(weightList)
+    graph, outWeightList = generate_graph(weightList, root_folder=root_folder)
 
     rng = np.arange(0.0, timesteps*delta_t, delta_t)
     pos = None
+
     for t in rng:
-        # Initialize the nodes
+        # Initialize the nodes on time 0
         if t == 0:
             for node in graph.nodes():
                 try:
-                    func = graph.nodes[node]['attr_dict']['func']
-                    pos = graph.nodes[node]['attr_dict']['pos']
+                    func = graph.nodes[node]['func']
+                    pos = graph.nodes[node]['pos']
                     #print(node, func, pos)
                 except:
                     print('node without func or pos %s at time %i' % (node, t))
-                
+
                 # Inputs receive a stable value for all the timesteps
                 # message[0] is the time of the message
                 if pos == 'input':
-                    if node == 'msg_cat_per':
-                        graph.nodes[node]['status'] = {0:message[0]}
-                    elif node == 'msg_cat_ent':
-                        graph.nodes[node]['status'] = {0:message[1]}
-                    elif node == 'msg_cat_new':
-                        graph.nodes[node]['status'] = {0:message[2]}
-                    elif node == 'msg_cat_edu':
-                        graph.nodes[node]['status'] = {0:message[3]}
-                    elif node == 'msg_cat_con':
-                        graph.nodes[node]['status'] = {0:message[4]}
+                    if node == 'cat_per':
+                        graph.nodes[node]['status'] = {0:message['cat_per']}
+                    elif node == 'cat_ent':
+                        graph.nodes[node]['status'] = {0:message['cat_ent']}
+                    elif node == 'cat_new':
+                        graph.nodes[node]['status'] = {0:message['cat_new']}
+                    elif node == 'cat_edu':
+                        graph.nodes[node]['status'] = {0:message['cat_edu']}
+                    elif node == 'cat_con':
+                        graph.nodes[node]['status'] = {0:message['cat_con']}
                     elif node == 'msg_rel':
-                        graph.nodes[node]['status'] = {0:message[5]}
+                        graph.nodes[node]['status'] = {0:message['msg_rel']}
                     elif node == 'msg_qua':
-                        graph.nodes[node]['status'] = {0:message[6]}
+                        graph.nodes[node]['status'] = {0:message['msg_qua']}
                     elif node == 'msg_sen':
-                        graph.nodes[node]['status'] = {0:message[7]}
+                        graph.nodes[node]['status'] = {0:message['msg_sen']}
                     elif node == 'msg_sal':
-                        graph.nodes[node]['status'] = {0:message[8]}
+                        graph.nodes[node]['status'] = {0:message['msg_sal']}
                     elif node == 'msg_med':
-                        graph.nodes[node]['status'] = {0:message[9]}
+                        graph.nodes[node]['status'] = {0:message['msg_med']}
                     elif node == 'msg_com':
-                        graph.nodes[node]['status'] = {0:message[10]}
+                        graph.nodes[node]['status'] = {0:message['msg_com']}
                     elif node == 'msg_que':
-                        graph.nodes[node]['status'] = {0:message[11]}
+                        graph.nodes[node]['status'] = {0:message['msg_que']}
                     else:
                         print('Node with wrong value:', node)
                         sys.exit()
                 # states are the personality traits of the agent
                 elif node == 'nf_ko':
-                    graph.nodes[node]['status'] = {0:traits[0]}
+                    graph.nodes[node]['status'] = {0:traits['nf_ko']}
                 elif node == 'nf_ent':
-                    graph.nodes[node]['status'] = {0:traits[1]}
+                    graph.nodes[node]['status'] = {0:traits['nf_ent']}
                 elif node == 'nf_is':
-                    graph.nodes[node]['status'] = {0:traits[2]}
+                    graph.nodes[node]['status'] = {0:traits['nf_is']}
                 elif node == 'nf_si':
-                    graph.nodes[node]['status'] = {0:traits[3]}
+                    graph.nodes[node]['status'] = {0:traits['nf_si']}
                 elif node == 'nf_se':
-                    graph.nodes[node]['status'] = {0:traits[4]}                
+                    graph.nodes[node]['status'] = {0:traits['nf_se']}      
                 elif node == 'pt_cons':
-                    graph.nodes[node]['status'] = {0:traits[5]}
+                    graph.nodes[node]['status'] = {0:traits['pt_cons']}
                 elif node == 'mood':
-                    graph.nodes[node]['status'] = {0:traits[6]}
+                    graph.nodes[node]['status'] = {0:traits['mood']}
                 # The other states are set to previous values at the beginning
                 else:
                     if previous_status_dict is None:
@@ -247,7 +245,7 @@ def run_message(message=None, traits=None, previous_status_dict=None,
                     else:
                         graph.nodes[node]['status'] = {0:previous_status_dict[node]}
             continue
-
+            
         for node in graph.nodes:
             '''
                 For each node (not 0 nodes...):
@@ -257,15 +255,15 @@ def run_message(message=None, traits=None, previous_status_dict=None,
                     calculate the new status value for the node in time t
             '''
 
-            func = graph.nodes[node]['attr_dict']['func']
-            pos = graph.nodes[node]['attr_dict']['pos']
+            func = graph.nodes[node]['func']
+            pos = graph.nodes[node]['pos']
 
             # Get previous state
             try:
                 previous_state = graph.nodes[node]['status'][t - delta_t]
             except:
                 print(graph.nodes[node]['status'], t, delta_t, node)
-                print(graph.nodes[node]['attr_dict']['pos'])
+                print(graph.nodes[node]['pos'])
 
             if pos != 'input' and pos != 'trait':
                 # If it is identity, the operation is based on the only neighbor.
@@ -305,13 +303,14 @@ def run_message(message=None, traits=None, previous_status_dict=None,
                         sf = speed_factor
 
                     graph.nodes[node]['status'][t] = previous_state + sf * (c - previous_state) * delta_t
-                
+
             # In case of inputs, copy the previous state again
             else:
                 graph.nodes[node]['status'][t] = graph.nodes[node]['status'][t - delta_t]
 
     # Previous status dictionary to keep track of what was done
     previous_states_dict = {}
+
     for node in graph.nodes():
         previous_states_dict[node] = graph.nodes[node]['status'][t]
 
@@ -327,7 +326,7 @@ def run_message(message=None, traits=None, previous_status_dict=None,
     return graph, outWeightList, set_traits, alogistic_parameters, previous_states_dict
 
 
-def run_message_sequence(message_seq=None, traits=None, alogistic_parameters=None, title='0'):
+def run_message_sequence(message_seq=None, traits=None, alogistic_parameters=None, title='0', root_folder="../../"):
     '''
     Run a sequence of messages for one agent with specific traits and an initial state
     message_seq: array of messages
@@ -345,15 +344,21 @@ def run_message_sequence(message_seq=None, traits=None, alogistic_parameters=Non
     # previous_states_dict
     psd = None
 
-    for message in message_seq:
+    # message_seq is a DF. Convert it to DICT and get the items
+    for idx, message in dict(message_seq.T).items():
+        #print("Processing message: ", message)
+
         if psd is None:
             g, w, set_traits, parameters, psd = run_message(message=message, weightList=weightList, 
-                traits=traits, alogistic_parameters=alogistic_parameters, speed_factor=speed_factor, delta_t=delta_t, timesteps=timesteps)
+                traits=traits, alogistic_parameters=alogistic_parameters, speed_factor=speed_factor, delta_t=delta_t, timesteps=timesteps, root_folder=root_folder
+                )
         else:
             g, w, set_traits, parameters, psd = run_message(message=message, weightList=weightList,
-                traits=list(set_traits.values()), previous_status_dict=psd, alogistic_parameters=alogistic_parameters,
-                speed_factor=speed_factor, delta_t=delta_t, timesteps=timesteps)
-
+                    traits=set_traits, previous_status_dict=psd, 
+                    alogistic_parameters=alogistic_parameters, speed_factor=speed_factor, 
+                    delta_t=delta_t, timesteps=timesteps, root_folder=root_folder
+                    )
+        #print("Set of traits: ", set_traits)
         status_results = {}
         for node in g.nodes():
             status_results[node] = g.node[node]['status']
@@ -363,5 +368,6 @@ def run_message_sequence(message_seq=None, traits=None, alogistic_parameters=Non
     return inputsDF, parameters
 
 if __name__ == "__main__":
+    get_agents()
     g, w = generate_graph()
     print("Test")
