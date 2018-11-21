@@ -6,7 +6,7 @@ import math
 import sys
 from random import random
 import model
-from pprint import pprint
+
 
 
 
