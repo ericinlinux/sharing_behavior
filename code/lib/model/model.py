@@ -104,8 +104,8 @@ def generate_graph(weightList=None, root_folder='../../'):
             graph.add_edge(source, target, weight=float(w))
             outWeightList.append(((source, target), float(w)))
 
-    print("Graph generated successfully. It contains {} nodes and {} edges.".format(
-        graph.number_of_nodes(),graph.number_of_edges()))
+    #print("Graph generated successfully. It contains {} nodes and {} edges.".format(
+    #    graph.number_of_nodes(),graph.number_of_edges()))
     return graph, outWeightList
 
 
@@ -368,6 +368,44 @@ def run_message_sequence(message_seq=None, traits=None, alogistic_parameters=Non
     return inputsDF, parameters
 
 if __name__ == "__main__":
-    get_agents()
+    # Get messages
+    print("Running tests for model.py code.")
+    messages = gm.sequence_messages()
+    message = dict(messages.iloc[0])
+    last_message = dict(messages.iloc[-1])
+    # Get graph
     g, w = generate_graph()
-    print("Test")
+    
+    # Get agents traits
+    agent='1'
+    agents = get_agents() 
+    # Agents
+    try:
+        agent_traits = agents[agent]
+    except:
+        print("Problems retrieving the traits of agent {} in the JSON.".format(agent))
+        pprint(agents, indent=3)
+        sys.exit(666)
+
+    g1, w, traits, parameters, psd = run_message(
+                                                message=message, 
+                                                traits=agent_traits, 
+                                                previous_status_dict=None, 
+                                                alogistic_parameters=None, 
+                                                speed_factor=0.5, 
+                                                delta_t=1, timesteps=20, 
+                                                weightList=None
+                                            )
+    print(g1.nodes['mood'])
+
+    g2, w, s, parameters, psd = run_message(message=last_message, 
+                                              traits=traits, 
+                                              previous_status_dict=psd,
+                                              alogistic_parameters=parameters, 
+                                              speed_factor=0.5, 
+                                              delta_t = 1, timesteps = 30, 
+                                              weightList=w
+                                             )
+    inputsDF, parameters = run_message_sequence(message_seq=messages, traits=traits,  
+                                                        alogistic_parameters=None)
+    print("End of Test.")

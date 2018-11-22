@@ -1,30 +1,30 @@
 {
 	"1": {
-			"nf_ko": 0.5,
-			"nf_ent": 0.5,
-			"nf_is": 0.5,
-			"nf_si": 0.5,
-			"nf_se": 0.5,
+			"nf_ko": 0.1,
+			"nf_ent": 0.1,
+			"nf_is": 0.9,
+			"nf_si": 0.9,
+			"nf_se": 0.9,
 			"pt_cons": 0.1,
 			"mood": 0.5
 		},
 	"2":
 		{
-			"nf_ko": 0.5,
+			"nf_ko": 0.1,
 			"nf_ent": 0.9,
-			"nf_is": 0.5,
-			"nf_si": 0.5,
-			"nf_se": 0.5,
+			"nf_is": 0.25,
+			"nf_si": 0.25,
+			"nf_se": 0.25,
 			"pt_cons": 0.5,
 			"mood": 0.5
 		},
 	"3":
 		{
-			"nf_ko": 0.5,
-			"nf_ent": 0.5,
-			"nf_is": 0.5,
-			"nf_si": 0.5,
-			"nf_se": 0.5,
+			"nf_ko": 0.9,
+			"nf_ent": 0.2,
+			"nf_is": 0.9,
+			"nf_si": 0.1,
+			"nf_se": 0.1,
 			"pt_cons": 0.9,
 			"mood": 0.5
 		}
