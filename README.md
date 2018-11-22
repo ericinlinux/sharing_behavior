@@ -10,6 +10,7 @@ The code is a simulation of the model provided in the article. If you have quest
 
 The scenarios simulated here are of an agent interacting with posts from Facebook. Three different kinds of agents are generated, and the sequence of messages is the same.
 
+
 ### Agents
 
 The agents created are:
