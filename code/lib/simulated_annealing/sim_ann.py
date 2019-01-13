@@ -1,4 +1,15 @@
-import model as model
+# Code for the simulated annealing algorithm.
+# Coder: Eric Araujo
+# Date of last changes: 2019-01-13
+
+# To include the files from the other folders.
+import os
+import sys
+module_path = os.path.abspath(os.path.join('../../'))
+if module_path not in sys.path:
+    sys.path.append(module_path)
+
+import lib.model.model as model
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -8,6 +19,7 @@ from pprint import pprint
 
 
 '''
+Get the next neighbor to be used for the simulation.
 '''
 def neighbor(json_parameters):
     # inf_tau = -0.05
@@ -63,43 +75,41 @@ def acceptance_probability(old_cost, new_cost, T):
 The empirical data should have a set of messages as input and different agents being simulated.
 
 '''
-def get_error(parameters=None):
+def get_error(parameters=None, root_folder="../../"):
     mood = 0.5
 
     # Get the traits for the agents
-    validation_f = 'validation/'
+    agents = model.get_agents(root_folder=root_folder) 
     
-    agent1 = pd.read_csv(validation_f+'agent_1.csv')
-    agent2 = pd.read_csv(validation_f+'agent_2.csv')
-    agent3 = pd.read_csv(validation_f+'agent_3.csv')
-
-    a1_dict = agent1.to_dict()
-    a2_dict = agent2.to_dict()
-    a3_dict = agent3.to_dict()
-
-    #[pt_con, nf_ko, nf_ent, nf_is, nf_si, nf_se, mood]
-    a1_traits = [a1_dict['nf_ko'][0], a1_dict['nf_ent'][0], a1_dict['nf_is'][0], 
-                 a1_dict['nf_si'][0], a1_dict['nf_se'][0], a1_dict['pt_con'][0], mood]
-    a2_traits = [a2_dict['nf_ko'][0], a2_dict['nf_ent'][0], a2_dict['nf_is'][0], 
-                 a2_dict['nf_si'][0], a2_dict['nf_se'][0], a2_dict['pt_con'][0], mood]
-    a3_traits = [a3_dict['nf_ko'][0], a3_dict['nf_ent'][0], a3_dict['nf_is'][0], 
-                 a3_dict['nf_si'][0], a3_dict['nf_se'][0], a3_dict['pt_con'][0], mood]
+    # Agents
+    try:
+        agent1 = agents['1']
+        agent2 = agents['2']
+        agent3 = agents['3']
+    except:
+        print("Problems retrieving the traits of agent {} in the JSON.".format(agent))
+        pprint(agents, indent=3)
+        sys.exit(666)
     
     
     # Get validation data set
+    validation_f = root_folder+'data/validation/'
     data_a1 = pd.read_csv(validation_f+'validation_agent_1.csv')
     data_a2 = pd.read_csv(validation_f+'validation_agent_2.csv')
     data_a3 = pd.read_csv(validation_f+'validation_agent_3.csv')
     
-    messages1 = data_a1[['msg_cat_per', 'msg_cat_ent', 'msg_cat_new', 'msg_cat_edu', 
-                        'msg_cat_con', 'msg_rel', 'msg_qua', 'msg_sen', 
-                        'msg_sal', 'msg_med', 'msg_com', 'msg_que']]
-    messages2 = data_a2[['msg_cat_per', 'msg_cat_ent', 'msg_cat_new', 'msg_cat_edu', 
-                        'msg_cat_con', 'msg_rel', 'msg_qua', 'msg_sen', 
-                        'msg_sal', 'msg_med', 'msg_com', 'msg_que']]
-    messages3 = data_a3[['msg_cat_per', 'msg_cat_ent', 'msg_cat_new', 'msg_cat_edu', 
-                        'msg_cat_con', 'msg_rel', 'msg_qua', 'msg_sen', 
-                        'msg_sal', 'msg_med', 'msg_com', 'msg_que']]
+    messages1 = data_a1[[   'cat_per', 'cat_ent', 'cat_new', 'cat_edu', 
+                            'cat_con', 'msg_rel', 'msg_qua', 'msg_sen', 
+                            'msg_sal', 'msg_med', 'msg_com', 'msg_que'
+                        ]]
+    messages2 = data_a2[[   'cat_per', 'cat_ent', 'cat_new', 'cat_edu', 
+                            'cat_con', 'msg_rel', 'msg_qua', 'msg_sen', 
+                            'msg_sal', 'msg_med', 'msg_com', 'msg_que'
+                        ]]
+    messages3 = data_a3[[   'cat_per', 'cat_ent', 'cat_new', 'cat_edu', 
+                            'cat_con', 'msg_rel', 'msg_qua', 'msg_sen', 
+                            'msg_sal', 'msg_med', 'msg_com', 'msg_que'
+                        ]]
     
     reactions1 = data_a1[['mood', 'like', 'comment', 'share']]
     reactions2 = data_a2[['mood', 'like', 'comment', 'share']]
@@ -125,27 +135,23 @@ def get_error(parameters=None):
 
     # Simulation
     # Agent 
-    '''
-    df1, parameters = model.run_message_sequence(messages1.values, a1_traits,
-                                                 alogistic_parameters=parameters, title='nb1')
-    df2, parameters = model.run_message_sequence(messages2.values, a2_traits,
-                                                 alogistic_parameters=parameters, title='nb2')
-    df3, parameters = model.run_message_sequence(messages3.values, a3_traits,
-                                                 alogistic_parameters=parameters, title='nb3')
-    '''
-
+    
     '''
     https://stackoverflow.com/questions/37873501/get-return-value-for-multi-processing-functions-in-python
     '''
     with Pool() as pool:
-        result1 = pool.apply_async(model.run_message_sequence, (messages1.values, a1_traits,
-                                                 parameters, 'nb1'))
-        result2 = pool.apply_async(model.run_message_sequence, (messages2.values, a2_traits,
-                                                 parameters, 'nb2'))
-        result3 = pool.apply_async(model.run_message_sequence, (messages3.values, a3_traits,
-                                                 parameters, 'nb3'))
-        df1, df2, df3 = result1.get()[0], result2.get()[0], result3.get()[0]
-        parameters = result1.get()[1]
+        result1 = pool.apply_async(model.run_message_sequence, (messages1, agent1,
+                                                 parameters, 'nb1', root_folder))
+        result2 = pool.apply_async(model.run_message_sequence, (messages2, agent2,
+                                                 parameters, 'nb2', root_folder))
+        result3 = pool.apply_async(model.run_message_sequence, (messages3, agent3,
+                                                 parameters, 'nb3', root_folder))
+        try:
+            df1, df2, df3 = result1.get()[0], result2.get()[0], result3.get()[0]
+            parameters = result1.get()[1]
+        except:
+            print(result1.get())
+            exit(0)
 
 
     factor_diff = 3
@@ -169,7 +175,6 @@ def get_error(parameters=None):
 
     # the data frames are important for ploting later.
     return sum_err, parameters, dfpoints1, reactions1, dfpoints2, reactions2, dfpoints3, reactions3, df1, df2, df3
-    #return sum_err, parameters, dfpoints1, reactions1, dfpoints2, reactions2, dfpoints3, reactions3
 
 
 
@@ -214,13 +219,13 @@ def plot_results(parameters, cost_hist, parameters_hist):
 
 
 
-def parameter_tuning(parameters=None):
+def parameter_tuning(parameters=None, root_folder="../../"):
     # Keeping history (vectors)
     cost_hist = list([])
     parameters_hist = list([])
 
     # Actual cost
-    old_cost, initial_parameters, _, _, _, _, _, _, _, _, _ = get_error()
+    old_cost, initial_parameters, _, _, _, _, _, _, _, _, _ = get_error(root_folder=root_folder)
     cost_hist.append(old_cost)
     parameters_hist.append(initial_parameters)
 
@@ -238,7 +243,7 @@ def parameter_tuning(parameters=None):
         while i <= num_neighbors:
             
             new_parameters = neighbor(parameters.copy())
-            new_cost, new_parameters, _, _, _, _, _, _, _, _, _  = get_error(new_parameters.copy())
+            new_cost, new_parameters, _, _, _, _, _, _, _, _, _  = get_error(new_parameters.copy(), root_folder=root_folder)
             
             if new_cost < old_cost:
                 print('Lower!')
