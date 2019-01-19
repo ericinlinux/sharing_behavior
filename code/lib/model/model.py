@@ -174,7 +174,10 @@ def run_message(message=None, traits=None,
                      "prep_like" : [2.8,random()*20],
                      "prep_comm": [3.5,random()*20],
                      "prep_share" : [2.1, random()*20],
-                     "mood_speed": random()
+                     "mood_speed": random(),
+                     "ssr_pe_l": [1.0,random()*20],
+                     "ssr_pe_c": [1.0,random()*20],
+                     "ssr_pe_s": [1.0, random()*20]
                     }
     graph, outWeightList = generate_graph(weightList, root_folder=root_folder)
 

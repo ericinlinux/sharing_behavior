@@ -36,7 +36,7 @@ srs_cat_con, id
 srs_rel, id
 srs_qua, id
 srs_sen, id
-srs_sal, alogistic
+srs_sal, id
 srs_med, id
 srs_com, id
 srs_que, id
@@ -54,9 +54,9 @@ prep_gen, alogistic
 prep_like, alogistic
 prep_comm, alogistic
 prep_share, alogistic
-ssr_pe_l, id
-ssr_pe_c, id
-ssr_pe_s, id
+ssr_pe_l, alogistic
+ssr_pe_c, alogistic
+ssr_pe_s, alogistic
 like, id
 comment, id
 share, id
