@@ -8,7 +8,7 @@ import sys
 import json
 import pandas as pd
 
-def sequence_messages(num_repeat=10, num_loops=5, filename='../data/messages/messages.csv'):
+def sequence_messages(num_repeat=10, num_loops=5, root_folder='../../'):
     """Save a csv file at filename folder containing a sequence of messages based on:
     num_repeat: how many messages of the same type will be created in sequence.
     num_loops: how many times the body of messages is going to be repeated.
@@ -18,7 +18,7 @@ def sequence_messages(num_repeat=10, num_loops=5, filename='../data/messages/mes
     The num_loops is about how many times the structure above is going to be replicated. So if we have num_loops=10, the 25 messages will be copied 10 times, generating 250 messages in total.
     """
     # Open JSON file with the information of the messages
-    json_string = "../data/messages/messages.json"
+    json_string = root_folder + "data/messages/messages.json"
     with open(json_string, 'r') as f:
         messages = json.load(f)
     
@@ -41,6 +41,7 @@ def sequence_messages(num_repeat=10, num_loops=5, filename='../data/messages/mes
     messages_df = pd.concat([messages_df]*num_loops, ignore_index=True)
 
     # Export dataframe to .csv
+    filename = root_folder + "data/messages/messages.csv"
     messages_df.to_csv(filename, index=False)
 
     return messages_df

@@ -6,9 +6,63 @@ The code is a simulation of the model provided in the article. If you have quest
 
 ![model](figures/model/model_design.png)
 
+## Scenarios
+
+The scenarios simulated here are of an agent interacting with posts from Facebook. Three different kinds of agents are generated, and the sequence of messages is the same.
+
+
+### Agents
+
+The agents created are:
+
+1. Agent with high interest in self expression, information sharing and social interaction and low conscientiousness.
+2. Agent with high interest in entertainment.
+3. Agent with high interest for knowledge and information sharing in all the topics and high conscientiousness.
+
+### Messages
+
+Five different kinds of messages were generated. The agent is exposed for 20 time steps to each of the messages. The 5 kinds of messages are: fake news, news, holiday pictures, online course advert and videos or pictures of cats.
+
+Below is the structure of the posts containing fake news. 
+
+```
+"fake_news": {
+                    "cat_per": 0,
+                    "cat_ent": 0,
+                    "cat_new": 1,
+                    "cat_edu": 0,
+                    "cat_con": 0,
+
+                    "msg_rel": 1,
+                    "msg_med": 0.5,
+                    "msg_qua": 0.5,
+                    "msg_sal": 1,
+                    "msg_com": 0,
+                    "msg_sen": 1,
+                    "msg_que": 0
+                }
+```
+
+### Message characteristics
+
+The messages received by the agent present the following characteristics:
+
+* **cat_per:** post belongs to category Personal
+* **cat_ent:** post belongs to category Entertainment
+* **cat_new:** post belongs to category News
+* **cat_edu:** post belongs to category Education
+* **cat_con:** post belongs to category Conversational
+* **msg_rel:** the relation to the source - [0,1]
+* **msg_qua:** the overall quality of the post -  [0,1]
+* **msg_sen:** the sentiment of a message - [0,1]
+* **msg_sal:** the saliency of a post - [0,1]
+* **msg_med:** the presence of media in the post - 0, 0.5 or 1
+* **msg_com:** the complexity of the message - [0,1]
+* **msg_que:** the presence of a question in the post - 0 or 1
+
 ## Structure of the code
 
-The project contains two parts: the model and the parameter tuning code.
+The project contains two parts: the model and the parameter tuning.
 
 ### The model (model.py)
 
@@ -82,22 +136,7 @@ def run_message_sequence(message_seq=None, traits=None, alogistic_parameters=Non
 
 In development...
 
-## Message characteristics
 
-The messages received by the agent present the following characteristics:
-
-* **cat_per:** post belongs to category Personal
-* **cat_ent:** post belongs to category Entertainment
-* **cat_new:** post belongs to category News
-* **cat_edu:** post belongs to category Education
-* **cat_con:** post belongs to category Conversational
-* **msg_rel:** the relation to the source - [0,1]
-* **msg_qua:** the overall quality of the post -  [0,1]
-* **msg_sen:** the sentiment of a message - [0,1]
-* **msg_sal:** the saliency of a post - [0,1]
-* **msg_med:** the presence of media in the post - 0, 0.5 or 1
-* **msg_com:** the complexity of the message - [0,1]
-* **msg_que:** the presence of a question in the post - 0 or 1
 
 ## Running the code
 
